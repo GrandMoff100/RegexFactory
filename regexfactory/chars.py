@@ -1,4 +1,4 @@
-r"""Module for regex characters like `\w` or `\n` or `.`"""
+r"""Module for regex characters like `\w` or `\D` or `.`"""
 
 from .pattern import RegexPattern
 
@@ -33,7 +33,3 @@ class Digit(RegexChar):
 
 class NotDigit(RegexChar):
     regex = r'\D'
-
-
-class Newline(RegexChar):
-    regex = r'\n'

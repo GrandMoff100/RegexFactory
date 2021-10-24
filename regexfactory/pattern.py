@@ -1,7 +1,24 @@
 """Module for the RegexPattern class"""
 
-import dataclasses
-from typing import Union
+
+escaped_characters = {
+    "*": r"\*",
+    ".": r"\.",
+    "\r": r"\r",
+    "\t": r"\t",
+    "\n": r"\n",
+    "\\": r"\\",
+}
+
+def join(*patterns):
+    joined = ''
+    for pattern in patterns:
+        joined += str(pattern)
+    return joined
+
+
+def escape(character: str):
+    return escaped_characters.get(character, character)
 
 
 class RegexPattern:
@@ -20,10 +37,3 @@ class RegexPattern:
             other = other.regex
 
         return RegexPattern(self.regex + other)
-
-    @staticmethod
-    def join(*patterns):
-        joined = ''
-        for pattern in patterns:
-            joined += str(pattern)
-        return joined

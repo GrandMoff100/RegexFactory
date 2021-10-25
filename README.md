@@ -66,3 +66,41 @@ print(matches)
 ```
 ['#000000', '5fb8a0', '#FF21FF']
 ```
+
+### Matching URLs
+
+Or what if you want to match urls in html content?
+
+```python
+from regexfactory import *
+import re
+
+
+protocol = Amount(Range("a", "z"), 1, ormore=True)
+host = Amount(Set(WORD, DIGIT, '.'), 1, ormore=True)
+port = Optional(Group(RegexPattern(":") + Amount(DIGIT, 1, ormore=True)))
+path = Amount(Group(RegexPattern('/') + Group(Amount(NotSet('/', '#', '?', '&', WHITESPACE), 0, ormore=True))), 0, ormore=True)
+patt = protocol + RegexPattern("://") + host + port + path
+
+
+
+sentence = "This is a cool url, https://github.com/GrandMoff100/RegexFactory/ "
+print(patt)
+
+print(re.search(str(patt), sentence))
+```
+
+```
+[a-z]{1,}://[\w\d.]{1,}(:\d{1,})?(/([^/#?&\s]{0,})){0,}
+<re.Match object; span=(15, 51), match='https://github.com/GrandMoff100/Lol/'>
+```
+
+## The Pitch
+
+This library is really good at allowing you to intuitively understand how to construct a regex expression.
+It helps you identify what exactly your regular expression is, and can help you debug it.
+This is library is also very helpful for generating regex expressions on the fly if you find use for it.
+You can also extend this library by subclassing `RegexPattern` and add your own support for different regex flavors.
+
+There you have it. This library is intuitive, extensible, modular, and dynamic.
+Why not use it?

@@ -60,6 +60,7 @@ matches = re.findall(
     str(pattern),
     sentence
 )
+print(matches)
 ```
 
 ```

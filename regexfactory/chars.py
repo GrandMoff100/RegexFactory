@@ -46,5 +46,3 @@ WORD = Word()
 NOTWORD = NotWord()
 DIGIT = Digit()
 NOTDIGIT = NotDigit()
-
-

@@ -12,6 +12,7 @@ escaped_characters = {
     "+"
 }
 
+
 def join(*patterns):
     joined = ''
     for pattern in patterns:

@@ -2,12 +2,14 @@
 
 
 escaped_characters = {
-    "*": r"\*",
-    ".": r"\.",
-    "\r": r"\r",
-    "\t": r"\t",
-    "\n": r"\n",
-    "\\": r"\\",
+    "*",
+    ".",
+    "\r",
+    "\t",
+    "\n",
+    "\\",
+    "?",
+    "+"
 }
 
 def join(*patterns):
@@ -18,7 +20,9 @@ def join(*patterns):
 
 
 def escape(character: str):
-    return escaped_characters.get(character, character)
+    if character in escaped_characters:
+        character = "\\" + character
+    return character
 
 
 class RegexPattern:

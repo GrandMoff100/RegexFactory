@@ -15,7 +15,8 @@ from .patterns import (
     Set,
     NotSet,
     Amount,
-    Optional
+    Optional,
+    RegexPattern
 )
 
 

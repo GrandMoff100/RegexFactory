@@ -7,6 +7,7 @@ from regexfactory import (
     __author_email__
 )
 
+
 setup(
     name=__name__,
     version=__version__,

@@ -34,7 +34,7 @@ class Set(RegexPattern):
             if isinstance(p, Range):
                 regex += f"{p.a}-{p.z}"
             else:
-                regex += p
+                regex += str(p)
         super().__init__(f"[{regex}]")
 
 
@@ -45,7 +45,7 @@ class NotSet(RegexPattern):
             if isinstance(p, Range):
                 regex += f"{p.a}-{p.z}"
             else:
-                regex += p
+                regex += str(p)
         super().__init__(f"[^{regex}]")
 
 
@@ -60,7 +60,7 @@ class Amount(RegexPattern):
         if j is not None:
             amount = f"{i},{j}"
         elif ormore:
-            amount += f"{i},"
+            amount = f"{i},"
         else:
             amount = f"{i}"
         super().__init__(pattern + "{" + amount + "}")

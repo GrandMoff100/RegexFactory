@@ -92,7 +92,7 @@ print(re.search(str(patt), sentence))
 
 ```
 [a-z]{1,}://[\w\d.]{1,}(:\d{1,})?(/([^/#?&\s]{0,})){0,}
-<re.Match object; span=(15, 51), match='https://github.com/GrandMoff100/Lol/'>
+<re.Match object; span=(15, 51), match='https://github.com/GrandMoff100/RegexFactory/'>
 ```
 
 ## The Pitch

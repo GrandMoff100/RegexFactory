@@ -1,12 +1,3 @@
-from .chars import (
-    ANY,
-    WHITESPACE,
-    NOTWHITESPACE,
-    WORD,
-    NOTWORD,
-    DIGIT,
-    NOTDIGIT
-)
 from .pattern import RegexPattern
 from .patterns import (
     Group,
@@ -15,8 +6,16 @@ from .patterns import (
     Set,
     NotSet,
     Amount,
-    Optional,
-    RegexPattern
+    Optional
+)
+from .chars import (
+    ANY,
+    WHITESPACE,
+    NOTWHITESPACE,
+    WORD,
+    NOTWORD,
+    DIGIT,
+    NOTDIGIT
 )
 
 

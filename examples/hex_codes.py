@@ -1,5 +1,6 @@
 import re
-from regexfactory import *
+from regexfactory import Optional, Or, Amount, Set, Range
+
 
 pattern = Optional("#") + Or(
     Amount(
@@ -15,8 +16,7 @@ pattern = Optional("#") + Or(
             Range("A", "F")
         ),
         6
-    ),
-    
+    )
 )
 
 sentence = """
@@ -28,5 +28,5 @@ matches = re.findall(
     sentence
 )
 
-print(pattern) # Prints the generated pattern object as a string
-print(matches) # Print the identified matches found in tbe sentence variable string.
+print(pattern)  # Prints the generated pattern object as a string
+print(matches)  # Print the identified matches found in tbe sentence variable string.

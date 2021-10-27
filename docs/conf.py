@@ -20,9 +20,7 @@ sys.path.append(os.path.abspath('extensions'))
 from regexfactory import __version__
 
 
-
 # -- Project information -----------------------------------------------------
-
 project = 'RegexFactory'
 copyright = '2021, Nate Larsen'
 author = 'Nate Larsen'

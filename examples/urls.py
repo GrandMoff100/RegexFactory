@@ -1,4 +1,15 @@
-from regexfactory import *
+from regexfactory import (
+    Amount,
+    Range,
+    Optional,
+    Group,
+    RegexPattern,
+    DIGIT,
+    NotSet,
+    WHITESPACE,
+    WORD,
+    Set
+)
 import re
 
 
@@ -9,8 +20,7 @@ path = Amount(Group(RegexPattern('/') + Group(Amount(NotSet('/', '#', '?', '&', 
 patt = protocol + RegexPattern("://") + host + port + path
 
 
-
 sentence = "This is a cool url, https://github.com/GrandMoff100/RegexFactory/ "
-print(patt)
 
+print(patt)
 print(re.search(str(patt), sentence))

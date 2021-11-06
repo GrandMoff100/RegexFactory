@@ -1,4 +1,4 @@
-"""Module for the RegexPattern class"""
+"""The module for the RegexPattern class and other functions"""
 
 
 escaped_characters = {
@@ -11,9 +11,11 @@ escaped_characters = {
     "?",
     "+"
 }
+"""A set of all characters that need to be escaoed in regex."""
 
 
 def join(*patterns):
+    """a"""
     joined = ''
     for pattern in patterns:
         joined += str(pattern)
@@ -21,12 +23,21 @@ def join(*patterns):
 
 
 def escape(character: str):
+    """a"""
     if character in escaped_characters:
         character = "\\" + character
     return character
 
 
 class RegexPattern:
+    """
+    The base class for constructinn patterns.
+    You can add patterns together like :code:`pattern1 + pattern2`
+    To turn a string into a RegexPattern object simply pass it to it's init method, like :code:`patt = RegexPattern("myregex")`.
+
+    :ivar regex: The regular expression content for any RegexPattern object.
+    """
+
     regex: str
 
     def __init__(self, pattern):

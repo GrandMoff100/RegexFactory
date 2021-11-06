@@ -1,4 +1,4 @@
-"""Module for Regex pattern classes like `[^abc]` or (abc) a|b"""
+"""The module for Regex pattern classes like these regex patterns, :code:`[^abc]`, :code:`(abc)`, or :code:`a|b`"""
 
 from .pattern import RegexPattern
 from typing import Tuple, Union
@@ -20,10 +20,10 @@ class Or(RegexPattern):
 
 
 class Range(RegexPattern):
-    def __init__(self, a: str, z: str):
-        self.a = a
-        self.z = z
-        regex = f"[{a}-{z}]"
+    def __init__(self, start: str, end: str):
+        self.start = start
+        self.end = end
+        regex = f"[{start}-{end}]"
         super().__init__(regex)
 
 
@@ -32,7 +32,7 @@ class Set(RegexPattern):
         regex = ''
         for p in patterns:
             if isinstance(p, Range):
-                regex += f"{p.a}-{p.z}"
+                regex += f"{p.start}-{p.end}"
             else:
                 regex += str(p)
         super().__init__(f"[{regex}]")
@@ -43,7 +43,7 @@ class NotSet(RegexPattern):
         regex = ''
         for p in patterns:
             if isinstance(p, Range):
-                regex += f"{p.a}-{p.z}"
+                regex += f"{p.start}-{p.end}"
             else:
                 regex += str(p)
         super().__init__(f"[^{regex}]")
@@ -69,3 +69,7 @@ class Amount(RegexPattern):
 class Optional(RegexPattern):
     def __init__(self, pattern: Union[str, RegexPattern]):
         super().__init__(pattern + "?")
+
+
+class NamedGroup(RegexPattern):
+    pass

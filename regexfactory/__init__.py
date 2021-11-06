@@ -1,3 +1,5 @@
+"""The regexfactory module documetation!"""
+
 from .pattern import RegexPattern
 from .patterns import (
     Group,
@@ -6,9 +8,10 @@ from .patterns import (
     Set,
     NotSet,
     Amount,
-    Optional
+    Optional,
 )
 from .chars import (
+    RegexChar,
     ANY,
     WHITESPACE,
     NOTWHITESPACE,

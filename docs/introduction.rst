@@ -1,7 +1,7 @@
 Introduction
 ***************
 
-RegexFactory is a Python library that allows you to intuitively and dynamically generate regular expressions (RegEx).
+RegexFactory is a very very lightweight Python library that allows you to intuitively and dynamically generate regular expressions (RegEx).
 Regular expressions are strings of text used to find and extract information from other strings and text documents.
 See this quick example.
 

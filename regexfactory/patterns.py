@@ -72,4 +72,5 @@ class Optional(RegexPattern):
 
 
 class NamedGroup(RegexPattern):
-    pass
+    def __init__(self, name: str, pattern: Union[str, RegexPattern]):
+        super().__init__(f"(?P<{name}>{pattern})")

@@ -58,7 +58,8 @@ class Amount(RegexPattern):
         pattern: Union[str, RegexPattern],
         i: int,
         j: int = None,
-        ormore: bool = False
+        ormore: bool = False,
+        greedy=True,
     ):
         if j is not None:
             amount = f"{i},{j}"
@@ -66,7 +67,11 @@ class Amount(RegexPattern):
             amount = f"{i},"
         else:
             amount = f"{i}"
-        super().__init__(pattern + "{" + amount + "}")
+        if not greedy:
+            greedy = "?"
+        else:
+            greedy = ""
+        super().__init__(pattern + "{" + amount + "}" + greedy)
 
 
 class Optional(RegexPattern):

@@ -5,8 +5,11 @@ from typing import Tuple, Union
 
 
 class Group(RegexPattern):
-    def __init__(self, pattern: Union[str, RegexPattern]):
-        super().__init__("(" + str(pattern) + ")")
+    def __init__(self, pattern: Union[str, RegexPattern], noncapturing=False):
+        extension = ""
+        if noncapturing:
+            extension += '?:'
+        super().__init__("(" + extension + str(pattern) + ")")
 
 
 class Or(RegexPattern):

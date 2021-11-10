@@ -99,8 +99,9 @@ print(re.search(str(patt), sentence))
 
 This library is really good at allowing you to intuitively understand how to construct a regex expression.
 It helps you identify what exactly your regular expression is, and can help you debug it.
-This is library is also very helpful for generating regex expressions on the fly if you find use for it.
+This is library is also very helpful for generating regex expressions on the fly if you find uses for it.
 You can also extend this library by subclassing `RegexPattern` and add your own support for different regex flavors.
+Like generating regex expresison with Perl5 extensions.
 
 There you have it. This library is intuitive, extensible, modular, and dynamic.
 Why not use it?

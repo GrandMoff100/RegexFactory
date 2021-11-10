@@ -13,19 +13,23 @@ class RegexChar(RegexPattern):
 
 
 class Whitespace(RegexChar):
-    """1234567890"""
+    """
+    Matches any whitespace character.
+    A whitespace character is one of these characters.
+    :code:`"\\n"`, :code:`"\\r"`, :code:`"\\v"`, :code:`"\\f"`, :code:`"\\t"`, :code:`" "`.
+    """
 
     regex = r'\s'
 
 
 class NotWhitespace(RegexChar):
-    """1234567890"""
+    """Matches any character that is not a whitespace character."""
 
     regex = r'\S'
 
 
 class Any(RegexChar):
-    """1234567890"""
+    """Matches any character except the newline character."""
 
     regex = r'.'
 

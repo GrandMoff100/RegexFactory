@@ -5,6 +5,12 @@ from typing import Tuple, Union
 
 
 class Group(RegexPattern):
+    """
+    A group is a way of splitting a single large pattern up into smaller components.
+    A capturing group is for extracting useful information from a specific part of the pattern matches.
+    If you want to make a non-capturing group, pass :code:`noncapturing=True` to the init of a group object like, :code:`Group(mypattern, noncapuring=True)`  
+    """
+
     def __init__(self, pattern: Union[str, RegexPattern], noncapturing=False):
         extension = ""
         if noncapturing:
@@ -13,16 +19,24 @@ class Group(RegexPattern):
 
 
 class Or(RegexPattern):
+    """
+    
+    """
+
     def __init__(
         self,
         pattern: Union[str, RegexPattern],
         other_pattern: Union[str, RegexPattern]
     ):
-        regex = str(pattern) + "|" + str(other_pattern)
-        super().__init__(Group(regex))
+        regex = Group(pattern, noncapturing=True) + RegexPattern("|") + Group(other_pattern, noncapturing=True)
+        super().__init__(Group(regex, noncapturing=True))
 
 
 class Range(RegexPattern):
+    """
+    
+    """
+
     def __init__(self, start: str, end: str):
         self.start = start
         self.end = end
@@ -31,6 +45,10 @@ class Range(RegexPattern):
 
 
 class Set(RegexPattern):
+    """
+    
+    """
+
     def __init__(self, *patterns: Tuple[Union[str, Range]]):
         regex = ''
         for p in patterns:
@@ -42,6 +60,10 @@ class Set(RegexPattern):
 
 
 class NotSet(RegexPattern):
+    """
+    
+    """
+
     def __init__(self, *patterns: Tuple[Union[str, Range]]):
         regex = ''
         for p in patterns:
@@ -53,6 +75,10 @@ class NotSet(RegexPattern):
 
 
 class Amount(RegexPattern):
+    """
+    
+    """
+
     def __init__(
         self,
         pattern: Union[str, RegexPattern],
@@ -75,10 +101,18 @@ class Amount(RegexPattern):
 
 
 class Optional(RegexPattern):
+    """
+    
+    """
+
     def __init__(self, pattern: Union[str, RegexPattern]):
         super().__init__(pattern + "?")
 
 
 class NamedGroup(RegexPattern):
+    """
+    
+    """
+
     def __init__(self, name: str, pattern: Union[str, RegexPattern]):
         super().__init__(f"(?P<{name}>{pattern})")

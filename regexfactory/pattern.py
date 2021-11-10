@@ -1,5 +1,7 @@
 """The module for the RegexPattern class and other functions"""
 
+from typing import Tuple, Union
+
 
 escaped_characters = {
     "*",
@@ -14,19 +16,6 @@ escaped_characters = {
 """A set of all characters that need to be escaoed in regex."""
 
 
-def join(*patterns):
-    """a"""
-    joined = ''
-    for pattern in patterns:
-        joined += str(pattern)
-    return joined
-
-
-def escape(character: str):
-    """a"""
-    if character in escaped_characters:
-        character = "\\" + character
-    return character
 
 
 class RegexPattern:
@@ -53,3 +42,18 @@ class RegexPattern:
             other = other.regex
 
         return RegexPattern(self.regex + other)
+
+
+def join(*patterns: Tuple[Union[str, RegexPattern]]) -> RegexPattern:
+    """Concatenates a tuple of RegexPattern and string objects into a single RegexPattern object."""
+    joined = ''
+    for pattern in patterns:
+        joined += str(pattern)
+    return joined
+
+
+def escape(character: str) -> str:
+    """Escapes a regex metacharacter into a raw string character."""
+    if character in escaped_characters:
+        character = "\\" + character
+    return character

@@ -109,10 +109,31 @@ class Optional(RegexPattern):
         super().__init__(pattern + "?")
 
 
-class NamedGroup(RegexPattern):
+class Extension(RegexPattern):
+    def __init__(self, pre: str, pattern: Union[str, RegexPattern]):
+        super().__init__(f"(?{pre}{str(pattern)})")
+
+
+class NamedGroup(Extension):
     """
     
     """
 
     def __init__(self, name: str, pattern: Union[str, RegexPattern]):
-        super().__init__(f"(?P<{name}>{pattern})")
+        super().__init__("P<{name}>", pattern)
+
+
+class Comment(Extension):
+    def __init__(self, content: str):
+        super().__init__("#", content)
+
+
+class Lookahead(Extension):
+    def __init__(self, pattern: Union[str, RegexPattern]):
+        super().__init__("=", pattern)
+
+
+class NegLookahead(Extension):
+    def __init__(self, pattern: Union[str, RegexPattern]):
+        super().__init__('!', pattern)
+

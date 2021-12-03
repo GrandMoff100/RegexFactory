@@ -1,5 +1,6 @@
 """The module for the RegexPattern class and other functions"""
 
+import re
 from typing import Tuple, Union
 
 
@@ -42,6 +43,9 @@ class RegexPattern:
             other = other.regex
 
         return RegexPattern(self.regex + other)
+
+    def compile(self, flags=0):
+        return re.compile(str(self), flags=flags)
 
 
 def join(*patterns: Tuple[Union[str, RegexPattern]]) -> RegexPattern:

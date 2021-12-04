@@ -1,24 +1,15 @@
 """The regexfactory module documetation!"""
 
-from .pattern import RegexPattern
-from .patterns import (
-    Group,
-    Or,
-    Range,
-    Set,
-    NotSet,
-    Amount,
-    Optional,
-)
 from .chars import (
     ANY,
-    WHITESPACE,
-    NOTWHITESPACE,
-    WORD,
-    NOTWORD,
     DIGIT,
-    NOTDIGIT
+    NOTDIGIT,
+    NOTWHITESPACE,
+    NOTWORD,
+    WHITESPACE,
+    WORD
 )
-
+from .pattern import RegexPattern
+from .patterns import Amount, Group, NotSet, Optional, Or, Range, Set
 
 __version__ = "0.0.0"

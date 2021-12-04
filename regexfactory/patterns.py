@@ -1,9 +1,10 @@
 """Module for Regex pattern classes like `[^abc]` or (abc) a|b"""
 
-from .pattern import RegexPattern, ValidPatternType
+import inspect
 import typing as t
 from typing import overload
-import inspect
+
+from .pattern import RegexPattern, ValidPatternType
 
 
 class Group(RegexPattern):
@@ -13,7 +14,9 @@ class Group(RegexPattern):
 
 
 class Or(RegexPattern):
-    def __init__(self, pattern: ValidPatternType, other_pattern: ValidPatternType) -> None:
+    def __init__(
+        self, pattern: ValidPatternType, other_pattern: ValidPatternType
+    ) -> None:
         regex = self.get_regex(pattern) + "|" + self.get_regex(other_pattern)
         super().__init__(Group(regex))
 
@@ -28,7 +31,7 @@ class Range(RegexPattern):
 
 class Set(RegexPattern):
     def __init__(self, *patterns: ValidPatternType) -> None:
-        regex = ''
+        regex = ""
         for p in patterns:
             if isinstance(p, Range):
                 regex += f"{p.start}-{p.stop}"
@@ -39,7 +42,7 @@ class Set(RegexPattern):
 
 class NotSet(RegexPattern):
     def __init__(self, *patterns: ValidPatternType) -> None:
-        regex = ''
+        regex = ""
         for p in patterns:
             if isinstance(p, Range):
                 regex += f"{p.start}-{p.stop}"
@@ -50,7 +53,9 @@ class NotSet(RegexPattern):
 
 class Amount(RegexPattern):
     @overload
-    def __init__(self, pattern: ValidPatternType, repetitions: int, or_more: bool = False) -> None:
+    def __init__(
+        self, pattern: ValidPatternType, repetitions: int, or_more: bool = False
+    ) -> None:
         ...
 
     @overload
@@ -74,14 +79,24 @@ class Amount(RegexPattern):
     def parse_init_args(*args, **kwargs) -> t.Tuple[int, t.Optional[int], bool]:
         s1 = inspect.Signature(
             parameters=(
-                inspect.Parameter("repetitions", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD),
-                inspect.Parameter("or_more", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD, default=False)
+                inspect.Parameter(
+                    "repetitions", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD
+                ),
+                inspect.Parameter(
+                    "or_more",
+                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    default=False,
+                ),
             )
         )
         s2 = inspect.Signature(
             parameters=(
-                inspect.Parameter("minimum", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD),
-                inspect.Parameter("maximum", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD)
+                inspect.Parameter(
+                    "minimum", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD
+                ),
+                inspect.Parameter(
+                    "maximum", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD
+                ),
             )
         )
         try:
@@ -104,3 +119,28 @@ class Optional(RegexPattern):
     def __init__(self, pattern: ValidPatternType) -> None:
         regex = self.get_regex(pattern) + "?"
         super().__init__(regex)
+
+
+class Extension(RegexPattern):
+    def __init__(self, pre: str, pattern: ValidPatternType):
+        super().__init__(f"(?{pre}{str(pattern)})")
+
+
+class NamedGroup(Extension):
+    def __init__(self, name: str, pattern: ValidPatternType):
+        super().__init__("P<{name}>", pattern)
+
+
+class Comment(Extension):
+    def __init__(self, content: str):
+        super().__init__("#", content)
+
+
+class Lookahead(Extension):
+    def __init__(self, pattern: ValidPatternType):
+        super().__init__("=", pattern)
+
+
+class NegLookahead(Extension):
+    def __init__(self, pattern: ValidPatternType):
+        super().__init__('!', pattern)

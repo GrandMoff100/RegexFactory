@@ -4,20 +4,11 @@ from re import Pattern
 from typing import Union
 
 ValidPatternType = Union[Pattern, str, "RegexPattern"]
-escaped_characters = {
-    "*",
-    ".",
-    "\r",
-    "\t",
-    "\n",
-    "\\",
-    "?",
-    "+"
-}
+escaped_characters = {"*", ".", "\r", "\t", "\n", "\\", "?", "+"}
 
 
 def join(*patterns: ValidPatternType) -> str:
-    joined = ''
+    joined = ""
     for pattern in patterns:
         joined += str(pattern)
     return joined
@@ -43,8 +34,10 @@ class RegexPattern:
             return obj
         elif isinstance(obj, Pattern):
             return obj.pattern
-
-        raise TypeError(f"Can't get regex from {obj.__class__.__qualname__} object.")
+        else:
+            raise TypeError(
+                f"Can't get regex from {obj.__class__.__qualname__} object."
+            )
 
     def __str__(self) -> str:
         return self.regex

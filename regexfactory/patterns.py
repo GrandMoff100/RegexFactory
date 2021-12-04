@@ -75,7 +75,7 @@ class Amount(RegexPattern):
         s1 = inspect.Signature(
             parameters=(
                 inspect.Parameter("repetitions", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD),
-                inspect.Parameter("or_more", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD)
+                inspect.Parameter("or_more", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD, default=False)
             )
         )
         s2 = inspect.Signature(
@@ -86,11 +86,13 @@ class Amount(RegexPattern):
         )
         try:
             bound = s1.bind(*args, **kwargs)
+            bound.apply_defaults()
             i = bound.arguments["repetitions"]
             j = None
             or_more = bound.arguments["or_more"]
         except TypeError:
             bound = s2.bind(*args, **kwargs)
+            bound.apply_defaults()
             i = bound.arguments["minimum"]
             j = bound.arguments["maximum"]
             or_more = False

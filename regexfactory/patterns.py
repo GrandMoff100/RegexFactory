@@ -1,7 +1,7 @@
 """Module for Regex pattern classes like `[^abc]` or (abc) a|b"""
 
 from .pattern import RegexPattern, ValidPatternType
-from typing import Union, overload
+from typing import Tuple, Optional, overload
 import inspect
 
 
@@ -70,7 +70,7 @@ class Amount(RegexPattern):
         super().__init__(regex)
 
     @staticmethod
-    def parse_init_args(*args, **kwargs):
+    def parse_init_args(*args, **kwargs) -> Tuple[int, Optional[int], bool]:
         s1 = inspect.Signature(
             parameters=(
                 inspect.Parameter("repetitions", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD),

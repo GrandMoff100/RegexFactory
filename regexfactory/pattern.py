@@ -1,9 +1,9 @@
-"""The module for the RegexPattern class and other functions"""
+"""Module for the RegexPattern class"""
 
-import re
-from typing import Tuple, Union
+from re import Pattern
+from typing import Union
 
-
+ValidPatternType = Union[Pattern, str, "RegexPattern"]
 escaped_characters = {
     "*",
     ".",
@@ -14,50 +14,45 @@ escaped_characters = {
     "?",
     "+"
 }
-"""A set of all characters that need to be escaoed in regex."""
 
 
+def join(*patterns: ValidPatternType) -> str:
+    joined = ''
+    for pattern in patterns:
+        joined += str(pattern)
+    return joined
+
+
+def escape(character: str) -> str:
+    if character in escaped_characters:
+        character = "\\" + character
+    return character
 
 
 class RegexPattern:
-    """
-    The base class for constructinn patterns.
-    You can add patterns together like :code:`pattern1 + pattern2`
-    To turn a string into a RegexPattern object simply pass it to it's init method, like :code:`patt = RegexPattern("myregex")`.
-
-    :ivar regex: The regular expression content for any RegexPattern object.
-    """
-
     regex: str
 
-    def __init__(self, pattern):
-        if isinstance(pattern, RegexPattern):
-            pattern = pattern.regex
-        self.regex = pattern
+    def __init__(self, pattern: ValidPatternType):
+        self.regex = self.get_regex(pattern)
+
+    @staticmethod
+    def get_regex(obj: ValidPatternType) -> str:
+        if isinstance(obj, RegexPattern):
+            return obj.regex
+        elif isinstance(obj, str):
+            return obj
+        elif isinstance(obj, Pattern):
+            return obj.pattern
+
+        raise TypeError(f"Can't get regex from {obj.__class__.__qualname__} object.")
 
     def __str__(self):
         return self.regex
 
-    def __add__(self, other):
-        if isinstance(other, RegexPattern):
-            other = other.regex
+    def __add__(self, other: ValidPatternType) -> "RegexPattern":
+        try:
+            other = self.get_regex(other)
+        except TypeError:
+            return NotImplemented
 
         return RegexPattern(self.regex + other)
-
-    def compile(self, flags=0):
-        return re.compile(str(self), flags=flags)
-
-
-def join(*patterns: Tuple[Union[str, RegexPattern]]) -> RegexPattern:
-    """Concatenates a tuple of RegexPattern and string objects into a single RegexPattern object."""
-    joined = ''
-    for pattern in patterns:
-        joined += str(pattern)
-    return RegexPattern(joined)
-
-
-def escape(character: str) -> str:
-    """Escapes a regex metacharacter into a raw string character."""
-    if character in escaped_characters:
-        character = "\\" + character
-    return character

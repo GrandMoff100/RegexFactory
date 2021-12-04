@@ -1,139 +1,106 @@
-"""The module for Regex pattern classes like these regex patterns, :code:`[^abc]`, :code:`(abc)`, or :code:`a|b`"""
+"""Module for Regex pattern classes like `[^abc]` or (abc) a|b"""
 
-from .pattern import RegexPattern
-from typing import Tuple, Union
+from .pattern import RegexPattern, ValidPatternType
+import typing as t
+from typing import overload
+import inspect
 
 
 class Group(RegexPattern):
-    """
-    A group is a way of splitting a single large pattern up into smaller components.
-    A capturing group is for extracting useful information from a specific part of the pattern matches.
-    If you want to make a non-capturing group, pass :code:`noncapturing=True` to the init of a group object like, :code:`Group(mypattern, noncapuring=True)`  
-    """
-
-    def __init__(self, pattern: Union[str, RegexPattern], noncapturing=False):
-        extension = ""
-        if noncapturing:
-            extension += '?:'
-        super().__init__("(" + extension + str(pattern) + ")")
+    def __init__(self, pattern: ValidPatternType):
+        regex = self.get_regex(pattern)
+        super().__init__(regex)
 
 
 class Or(RegexPattern):
-    """
-    
-    """
-
-    def __init__(
-        self,
-        pattern: Union[str, RegexPattern],
-        other_pattern: Union[str, RegexPattern]
-    ):
-        regex = Group(pattern, noncapturing=True) + RegexPattern("|") + Group(other_pattern, noncapturing=True)
-        super().__init__(Group(regex, noncapturing=True))
+    def __init__(self, pattern: ValidPatternType, other_pattern: ValidPatternType):
+        regex = self.get_regex(pattern) + "|" + self.get_regex(other_pattern)
+        super().__init__(Group(regex))
 
 
 class Range(RegexPattern):
-    """
-    
-    """
-
-    def __init__(self, start: str, end: str):
+    def __init__(self, start: str, stop: str):
         self.start = start
-        self.end = end
-        regex = f"[{start}-{end}]"
+        self.stop = stop
+        regex = f"[{start}-{stop}]"
         super().__init__(regex)
 
 
 class Set(RegexPattern):
-    """
-    
-    """
-
-    def __init__(self, *patterns: Tuple[Union[str, Range]]):
+    def __init__(self, *patterns: ValidPatternType):
         regex = ''
         for p in patterns:
             if isinstance(p, Range):
-                regex += f"{p.start}-{p.end}"
+                regex += f"{p.start}-{p.stop}"
             else:
                 regex += str(p)
         super().__init__(f"[{regex}]")
 
 
 class NotSet(RegexPattern):
-    """
-    
-    """
-
-    def __init__(self, *patterns: Tuple[Union[str, Range]]):
+    def __init__(self, *patterns: ValidPatternType):
         regex = ''
         for p in patterns:
             if isinstance(p, Range):
-                regex += f"{p.start}-{p.end}"
+                regex += f"{p.start}-{p.stop}"
             else:
                 regex += str(p)
         super().__init__(f"[^{regex}]")
 
 
 class Amount(RegexPattern):
-    """
-    
-    """
+    @overload
+    def __init__(self, pattern: ValidPatternType, repetitions: int, or_more: bool = False):
+        ...
 
-    def __init__(
-        self,
-        pattern: Union[str, RegexPattern],
-        i: int,
-        j: int = None,
-        ormore: bool = False,
-        greedy=True,
-    ):
+    @overload
+    def __init__(self, pattern: ValidPatternType, minimum: int, maximum: int):
+        ...
+
+    def __init__(self, pattern: ValidPatternType, *args, **kwargs):
+        i, j, or_more = self.parse_init_args(*args, **kwargs)
+
         if j is not None:
             amount = f"{i},{j}"
-        elif ormore:
+        elif or_more:
             amount = f"{i},"
         else:
             amount = f"{i}"
-        if not greedy:
-            greedy = "?"
-        else:
-            greedy = ""
-        super().__init__(pattern + "{" + amount + "}" + greedy)
+
+        regex = self.get_regex(pattern) + "{" + amount + "}"
+        super().__init__(regex)
+
+    @staticmethod
+    def parse_init_args(*args, **kwargs) -> t.Tuple[int, t.Optional[int], bool]:
+        s1 = inspect.Signature(
+            parameters=(
+                inspect.Parameter("repetitions", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD),
+                inspect.Parameter("or_more", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD, default=False)
+            )
+        )
+        s2 = inspect.Signature(
+            parameters=(
+                inspect.Parameter("minimum", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD),
+                inspect.Parameter("maximum", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD)
+            )
+        )
+        try:
+            bound = s1.bind(*args, **kwargs)
+            bound.apply_defaults()
+            i = bound.arguments["repetitions"]
+            j = None
+            or_more = bound.arguments["or_more"]
+        except TypeError:
+            bound = s2.bind(*args, **kwargs)
+            bound.apply_defaults()
+            i = bound.arguments["minimum"]
+            j = bound.arguments["maximum"]
+            or_more = False
+
+        return i, j, or_more
 
 
 class Optional(RegexPattern):
-    """
-    
-    """
-
-    def __init__(self, pattern: Union[str, RegexPattern]):
-        super().__init__(pattern + "?")
-
-
-class Extension(RegexPattern):
-    def __init__(self, pre: str, pattern: Union[str, RegexPattern]):
-        super().__init__(f"(?{pre}{str(pattern)})")
-
-
-class NamedGroup(Extension):
-    """
-    
-    """
-
-    def __init__(self, name: str, pattern: Union[str, RegexPattern]):
-        super().__init__("P<{name}>", pattern)
-
-
-class Comment(Extension):
-    def __init__(self, content: str):
-        super().__init__("#", content)
-
-
-class Lookahead(Extension):
-    def __init__(self, pattern: Union[str, RegexPattern]):
-        super().__init__("=", pattern)
-
-
-class NegLookahead(Extension):
-    def __init__(self, pattern: Union[str, RegexPattern]):
-        super().__init__('!', pattern)
-
+    def __init__(self, pattern: ValidPatternType):
+        regex = self.get_regex(pattern) + "?"
+        super().__init__(regex)

@@ -1,11 +1,11 @@
-name: Flake8
+name: Code Styling
 
 on:
   pull_request:
   workflow_dispatch:
 
 jobs:
-  flake8_py3:
+  code_style_checking:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Python
@@ -18,7 +18,15 @@ jobs:
         run: pip install flake8
       - name: Run flake8
         uses: suo/flake8-github-action@releases/v1
-        with:
-          checkName: 'flake8_py3'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  type_checking:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout Repo
+
+      - uses: jpetrucciani/mypy-check@master
+        with:
+          path: regexfactory

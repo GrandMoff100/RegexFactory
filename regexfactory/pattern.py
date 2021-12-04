@@ -53,7 +53,7 @@ def join(*patterns: Tuple[Union[str, RegexPattern]]) -> RegexPattern:
     joined = ''
     for pattern in patterns:
         joined += str(pattern)
-    return joined
+    return RegexPattern(joined)
 
 
 def escape(character: str) -> str:

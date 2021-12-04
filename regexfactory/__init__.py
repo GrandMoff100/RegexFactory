@@ -11,7 +11,6 @@ from .patterns import (
     Optional,
 )
 from .chars import (
-    RegexChar,
     ANY,
     WHITESPACE,
     NOTWHITESPACE,

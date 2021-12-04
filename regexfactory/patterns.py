@@ -7,19 +7,19 @@ import inspect
 
 
 class Group(RegexPattern):
-    def __init__(self, pattern: ValidPatternType):
+    def __init__(self, pattern: ValidPatternType) -> None:
         regex = self.get_regex(pattern)
-        super().__init__(regex)
+        super().__init__(f"({regex})")
 
 
 class Or(RegexPattern):
-    def __init__(self, pattern: ValidPatternType, other_pattern: ValidPatternType):
+    def __init__(self, pattern: ValidPatternType, other_pattern: ValidPatternType) -> None:
         regex = self.get_regex(pattern) + "|" + self.get_regex(other_pattern)
         super().__init__(Group(regex))
 
 
 class Range(RegexPattern):
-    def __init__(self, start: str, stop: str):
+    def __init__(self, start: str, stop: str) -> None:
         self.start = start
         self.stop = stop
         regex = f"[{start}-{stop}]"
@@ -27,7 +27,7 @@ class Range(RegexPattern):
 
 
 class Set(RegexPattern):
-    def __init__(self, *patterns: ValidPatternType):
+    def __init__(self, *patterns: ValidPatternType) -> None:
         regex = ''
         for p in patterns:
             if isinstance(p, Range):
@@ -38,7 +38,7 @@ class Set(RegexPattern):
 
 
 class NotSet(RegexPattern):
-    def __init__(self, *patterns: ValidPatternType):
+    def __init__(self, *patterns: ValidPatternType) -> None:
         regex = ''
         for p in patterns:
             if isinstance(p, Range):
@@ -50,14 +50,14 @@ class NotSet(RegexPattern):
 
 class Amount(RegexPattern):
     @overload
-    def __init__(self, pattern: ValidPatternType, repetitions: int, or_more: bool = False):
+    def __init__(self, pattern: ValidPatternType, repetitions: int, or_more: bool = False) -> None:
         ...
 
     @overload
-    def __init__(self, pattern: ValidPatternType, minimum: int, maximum: int):
+    def __init__(self, pattern: ValidPatternType, minimum: int, maximum: int) -> None:
         ...
 
-    def __init__(self, pattern: ValidPatternType, *args, **kwargs):
+    def __init__(self, pattern: ValidPatternType, *args, **kwargs) -> None:
         i, j, or_more = self.parse_init_args(*args, **kwargs)
 
         if j is not None:
@@ -101,6 +101,6 @@ class Amount(RegexPattern):
 
 
 class Optional(RegexPattern):
-    def __init__(self, pattern: ValidPatternType):
+    def __init__(self, pattern: ValidPatternType) -> None:
         regex = self.get_regex(pattern) + "?"
         super().__init__(regex)

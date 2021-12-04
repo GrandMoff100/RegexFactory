@@ -32,7 +32,7 @@ def escape(character: str) -> str:
 class RegexPattern:
     regex: str
 
-    def __init__(self, pattern: ValidPatternType):
+    def __init__(self, pattern: ValidPatternType) -> None:
         self.regex = self.get_regex(pattern)
 
     @staticmethod
@@ -46,7 +46,7 @@ class RegexPattern:
 
         raise TypeError(f"Can't get regex from {obj.__class__.__qualname__} object.")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.regex
 
     def __add__(self, other: ValidPatternType) -> "RegexPattern":

@@ -49,7 +49,7 @@ pattern = Optional("#") + Or(
         ),
         6
     ),
-    
+
 )
 
 sentence = """
@@ -76,10 +76,10 @@ from regexfactory import *
 import re
 
 
-protocol = Amount(Range("a", "z"), 1, ormore=True)
-host = Amount(Set(WORD, DIGIT, '.'), 1, ormore=True)
-port = Optional(Group(RegexPattern(":") + Amount(DIGIT, 1, ormore=True)))
-path = Amount(Group(RegexPattern('/') + Group(Amount(NotSet('/', '#', '?', '&', WHITESPACE), 0, ormore=True))), 0, ormore=True)
+protocol = Amount(Range("a", "z"), 1, or_more=True)
+host = Amount(Set(WORD, DIGIT, '.'), 1, or_more=True)
+port = Optional(Group(RegexPattern(":") + Amount(DIGIT, 1, or_more=True)))
+path = Amount(Group(RegexPattern('/') + Group(Amount(NotSet('/', '#', '?', '&', WHITESPACE), 0, or_more=True))), 0, or_more=True)
 patt = protocol + RegexPattern("://") + host + port + path
 
 

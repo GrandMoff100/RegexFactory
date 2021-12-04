@@ -26,7 +26,7 @@ class Range(RegexPattern):
 
 
 class Set(RegexPattern):
-    def __init__(self, *patterns: Union[str, Range]):
+    def __init__(self, *patterns: ValidPatternType):
         regex = ''
         for p in patterns:
             if isinstance(p, Range):
@@ -37,7 +37,7 @@ class Set(RegexPattern):
 
 
 class NotSet(RegexPattern):
-    def __init__(self, *patterns: Union[str, Range]):
+    def __init__(self, *patterns: ValidPatternType):
         regex = ''
         for p in patterns:
             if isinstance(p, Range):

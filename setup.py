@@ -1,6 +1,3 @@
 from setuptools import setup
 
-
-setup(
-    name="RegexFactory"
-)
+setup(name="RegexFactory")

@@ -7,17 +7,17 @@ ValidPatternType = Union[Pattern, str, "RegexPattern"]
 escaped_characters = {"*", ".", "\r", "\t", "\n", "\\", "?", "+"}
 
 
-def join(*patterns: ValidPatternType) -> str:
+def join(*patterns: ValidPatternType) -> "RegexPattern":
     joined = ""
     for pattern in patterns:
         joined += str(pattern)
-    return joined
+    return RegexPattern(joined)
 
 
-def escape(character: str) -> str:
+def escape(character: str) -> "RegexPattern":
     if character in escaped_characters:
         character = "\\" + character
-    return character
+    return RegexPattern(character)
 
 
 class RegexPattern:
@@ -30,14 +30,13 @@ class RegexPattern:
     def get_regex(obj: ValidPatternType) -> str:
         if isinstance(obj, RegexPattern):
             return obj.regex
-        elif isinstance(obj, str):
+        if isinstance(obj, str):
             return obj
-        elif isinstance(obj, Pattern):
+        if isinstance(obj, Pattern):
             return obj.pattern
-        else:
-            raise TypeError(
-                f"Can't get regex from {obj.__class__.__qualname__} object."
-            )
+        raise TypeError(
+            f"Can't get regex from {obj.__class__.__qualname__} object."
+        )
 
     def __str__(self) -> str:
         return self.regex

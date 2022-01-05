@@ -128,7 +128,12 @@ class Extension(RegexPattern):
 
 class NamedGroup(Extension):
     def __init__(self, name: str, pattern: ValidPatternType):
-        super().__init__("P<{name}>", pattern)
+        super().__init__(f"P<{name}>", pattern)
+
+
+class Reference(Extension):
+    def __init__(self, name: str):
+        super().__init__("P=", name)
 
 
 class Comment(Extension):
@@ -143,4 +148,4 @@ class Lookahead(Extension):
 
 class NegLookahead(Extension):
     def __init__(self, pattern: ValidPatternType):
-        super().__init__('!', pattern)
+        super().__init__("!", pattern)

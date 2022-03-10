@@ -7,12 +7,6 @@ from typing import overload
 from .pattern import RegexPattern, ValidPatternType
 
 
-class Group(RegexPattern):
-    def __init__(self, pattern: ValidPatternType) -> None:
-        regex = self.get_regex(pattern)
-        super().__init__(f"({regex})")
-
-
 class Or(RegexPattern):
     def __init__(
         self, pattern: ValidPatternType, other_pattern: ValidPatternType
@@ -100,3 +94,11 @@ class Lookahead(Extension):
 class NegLookahead(Extension):
     def __init__(self, pattern: ValidPatternType):
         super().__init__("!", pattern)
+
+
+class Group(Extension):
+    def __init__(self, pattern: ValidPatternType, capture: bool = True) -> None:
+        if capture is False:
+            super().__init__(":", pattern)
+        else:
+            super(Extension, self).__init__(pattern)  # pylint: disable=bad-super-call

@@ -5,26 +5,23 @@ Base Pattern Module
 Module for the RegexPattern class.
 """
 
-from re import Pattern
+from re import (
+    Pattern,
+    Match,
+    compile,
+    match,
+    search,
+    findall,
+    finditer,
+    sub,
+    subn,
+)
 from typing import Union
 
 ValidPatternType = Union[Pattern, str, "RegexPattern"]
 
 #: Special characters that need to be escaped to be used without their special meanings.
-escaped_characters = {
-    "*",
-    "^",
-    "$",
-    ".",
-    "\\",
-    "?",
-    "+",
-    "|",
-    "(",
-    ")",
-    "{",
-    "}",
-}
+escaped_characters = "()[]{}?*+-|^$\\.&~#"
 
 
 def join(*patterns: ValidPatternType) -> "RegexPattern":
@@ -81,3 +78,15 @@ class RegexPattern:
         if isinstance(obj, Pattern):
             return obj.pattern
         raise TypeError(f"Can't get regex from {obj.__class__.__qualname__} object.")
+
+    def compile(self, content: Union[str, bytes], flags: int = 0) -> Pattern:
+        return compile(self.regex, content, flags=flags)
+
+    def match(self, content: Union[str, bytes], flags: int = 0) -> Match:
+        return match(self.regex, content, flags=flags)
+
+    def search(self, content: str, flags: int = 0):
+        return search(self.regex, content, flags=flags)
+
+    def findall(self, content: str, flags: int = 0):
+        return findall(self.regex, content, flags=flags)

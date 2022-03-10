@@ -26,17 +26,9 @@ class RegexPattern:
     def __init__(self, pattern: ValidPatternType) -> None:
         self.regex = self.get_regex(pattern)
 
-    @staticmethod
-    def get_regex(obj: ValidPatternType) -> str:
-        if isinstance(obj, RegexPattern):
-            return obj.regex
-        if isinstance(obj, str):
-            return obj
-        if isinstance(obj, Pattern):
-            return obj.pattern
-        raise TypeError(
-            f"Can't get regex from {obj.__class__.__qualname__} object."
-        )
+    def __repr__(self) -> str:
+        raw_regex = repr(self.regex).replace("\\\\", "\\")
+        return f"<RegexPattern {raw_regex}>"
 
     def __str__(self) -> str:
         return self.regex

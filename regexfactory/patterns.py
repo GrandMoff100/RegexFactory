@@ -1,8 +1,6 @@
 """Module for Regex pattern classes like `[^abc]` or (abc) a|b"""
 
-import inspect
-import typing as t
-from typing import overload
+"""
 
 from .pattern import RegexPattern, ValidPatternType
 
@@ -27,27 +25,29 @@ class Range(RegexPattern):
 class Set(RegexPattern):
     def __init__(self, *patterns: ValidPatternType) -> None:
         regex = ""
-        for p in patterns:
-            if isinstance(p, Range):
-                regex += f"{p.start}-{p.stop}"
+        for pattern in patterns:
+            if isinstance(pattern, Range):
+                regex += f"{pattern.start}-{pattern.stop}"
             else:
-                regex += str(p)
+                regex += self.get_regex(pattern)
         super().__init__(f"[{regex}]")
 
 
 class NotSet(RegexPattern):
     def __init__(self, *patterns: ValidPatternType) -> None:
         regex = ""
-        for p in patterns:
-            if isinstance(p, Range):
-                regex += f"{p.start}-{p.stop}"
+        for pattern in patterns:
+            if isinstance(pattern, Range):
+                regex += f"{pattern.start}-{pattern.stop}"
             else:
-                regex += str(p)
+                regex += self.get_regex(pattern)
         super().__init__(f"[^{regex}]")
 
 
 class Amount(RegexPattern):
-    def __init__(self, pattern: ValidPatternType, i: int, *args: int, or_more: bool = False) -> None:
+    def __init__(
+        self, pattern: ValidPatternType, i: int, *args: int, or_more: bool = False
+    ) -> None:
         j, *_ = args + (None,)
 
         if j is not None:
@@ -68,8 +68,9 @@ class Optional(RegexPattern):
 
 
 class Extension(RegexPattern):
-    def __init__(self, pre: str, pattern: ValidPatternType):
-        super().__init__(f"(?{pre}{str(pattern)})")
+    def __init__(self, prefix: str, pattern: ValidPatternType):
+        regex = self.get_regex(pattern)
+        super().__init__(f"(?{prefix}{regex})")
 
 
 class NamedGroup(Extension):

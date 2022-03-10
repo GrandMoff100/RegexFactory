@@ -9,10 +9,11 @@ from .pattern import RegexPattern, ValidPatternType
 
 class Or(RegexPattern):
     def __init__(
-        self, pattern: ValidPatternType, other_pattern: ValidPatternType
+        self,
+        *patterns: ValidPatternType,
     ) -> None:
-        regex = self.get_regex(pattern) + "|" + self.get_regex(other_pattern)
-        super().__init__(Group(regex))
+        regex = "|".join(map(self.get_regex, patterns))
+        super().__init__((regex))
 
 
 class Range(RegexPattern):

@@ -40,3 +40,20 @@ class RegexPattern:
             return NotImplemented
 
         return RegexPattern(self.regex + other)
+
+    def __mul__(self, coefficient: int) -> "RegexPattern":
+        return RegexPattern(self.regex * coefficient)
+
+    def __eq__(self, pattern: ValidPatternType) -> bool:
+        return self.regex == self.get_regex(pattern)
+
+    @staticmethod
+    def get_regex(obj: ValidPatternType) -> str:
+        """Extracts the regex content from RegexPattern or Pattern objects else return the input."""
+        if isinstance(obj, RegexPattern):
+            return obj.regex
+        if isinstance(obj, str):
+            return obj
+        if isinstance(obj, Pattern):
+            return obj.pattern
+        raise TypeError(f"Can't get regex from {obj.__class__.__qualname__} object.")

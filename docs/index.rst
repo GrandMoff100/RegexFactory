@@ -12,7 +12,6 @@ Don't know where to start? Follow through the documentation below.
 
    introduction
    installation
-   usage
    reference
 
 

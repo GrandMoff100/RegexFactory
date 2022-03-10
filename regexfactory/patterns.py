@@ -1,5 +1,8 @@
-"""Module for Regex pattern classes like `[^abc]` or (abc) a|b"""
+"""
+Regex Pattern Classes
+***********************
 
+Module for Regex pattern classes like :code:`[^abc]` or :code:`(abc)` or :code:`a|b`
 """
 
 from .pattern import RegexPattern, ValidPatternType

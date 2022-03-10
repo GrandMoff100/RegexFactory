@@ -1,13 +1,34 @@
-"""Module for the RegexPattern class"""
+"""
+Base Pattern Module
+*******************
+
+Module for the RegexPattern class.
+"""
 
 from re import Pattern
 from typing import Union
 
 ValidPatternType = Union[Pattern, str, "RegexPattern"]
-escaped_characters = {"*", ".", "\r", "\t", "\n", "\\", "?", "+"}
+
+#: Special characters that need to be escaped to be used without their special meanings.
+escaped_characters = {
+    "*",
+    "^",
+    "$",
+    ".",
+    "\\",
+    "?",
+    "+",
+    "|",
+    "(",
+    ")",
+    "{",
+    "}",
+}
 
 
 def join(*patterns: ValidPatternType) -> "RegexPattern":
+    """lol"""
     joined = ""
     for pattern in patterns:
         joined += str(pattern)
@@ -15,12 +36,15 @@ def join(*patterns: ValidPatternType) -> "RegexPattern":
 
 
 def escape(character: str) -> "RegexPattern":
+    """lol"""
     if character in escaped_characters:
         character = "\\" + character
     return RegexPattern(character)
 
 
 class RegexPattern:
+    """An object"""
+
     regex: str
 
     def __init__(self, pattern: ValidPatternType) -> None:

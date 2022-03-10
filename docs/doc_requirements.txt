@@ -1,2 +1,2 @@
 sphinx-rtd-theme
-git+https://github.com/GrandMoff100/sphinx-execute-code
+sphinx-execute-code-python3

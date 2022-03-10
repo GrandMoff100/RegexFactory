@@ -1,18 +1,19 @@
-"""The regexfactory module documentation!"""
+"""
+API Reference
+##############
 
-from .chars import ANY, DIGIT, NOTDIGIT, NOTWHITESPACE, NOTWORD, WHITESPACE, WORD
+The regexfactory module documentation!
+
+.. automodule:: regexfactory.chars
+
+.. automodule:: regexfactory.pattern
+
+.. automodule:: regexfactory.patterns
+
+"""
+
+from .chars import *
 from .pattern import RegexPattern
-from .patterns import (
-    Amount,
-    Group,
-    Lookahead,
-    NegLookahead,
-    NotSet,
-    Optional,
-    Or,
-    Range,
-    Reference,
-    Set,
-)
+from .patterns import *
 
 __version__ = "0.0.0"

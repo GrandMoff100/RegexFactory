@@ -41,7 +41,7 @@ branch = (
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
-extensions = ["sphinx.ext.autodoc", "sphinx_execute_code", "resourcelinks"]
+extensions = ["sphinx.ext.autodoc", "sphinx_execute_code", "sphinx.ext.intersphinx"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -52,13 +52,6 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 autodoc_default_options = {"members": None, "annotation": None}
-
-resource_links = {
-    "repo": "https://github.com/GrandMoff100/RegexFactory/",
-    "issues": "https://github.com/GrandMoff100/RegexFactort/issues",
-    "discussions": "https://github.com/GrandMoff100/RegexFactory/discussions",
-    "examples": f"https://github.com/GrandMoff100/RegexFactory/tree/{branch}/examples",
-}
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -75,3 +68,20 @@ html_static_path = ["_static"]
 html_css_files = ["css/custom.css"]
 
 html_favicon = "./images/favicon.png"
+
+autodoc_default_options = {
+    "members": None,
+    "exclude-members": "regex",
+    "undoc-members": True,
+    "member-order": "bysource",
+    "special-members": "__add__, __mul__",
+}
+
+autodoc_type_aliases = {"ValidPatternType": "regexfactory.pattern.ValidPatternType"}
+
+intersphinx_mapping = {
+    "python": (
+        "https://docs.python.org/3",
+        None,
+    ),
+}

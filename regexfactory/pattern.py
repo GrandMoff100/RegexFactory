@@ -69,7 +69,7 @@ class RegexPattern:
 
     @staticmethod
     def get_regex(obj: ValidPatternType, /) -> str:
-        """Extracts the regex content from RegexPattern or Pattern objects else return the input."""
+        """Extracts the regex content from :class:`RegexPattern` or :class:`re.Pattern` objects else return the input :class:`str`."""
         if isinstance(obj, RegexPattern):
             return obj.regex
         if isinstance(obj, str):
@@ -114,7 +114,7 @@ class RegexPattern:
         flags: int = 0,
     ) -> List[Tuple[str, ...]]:
         """See :meth:`re.Pattern.findall`."""
-        return self.compile(flags=flags).search(content)
+        return self.compile(flags=flags).findall(content)
 
     def finditer(
         self,

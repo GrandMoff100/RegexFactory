@@ -1,13 +1,14 @@
 """
-Regex Pattern Classes
-***********************
+Regex Pattern Subclasses
+************************
 
 Module for Regex pattern classes like :code:`[^abc]` or :code:`(abc)` or :code:`a|b`
+
 """
 
 import typing as t
 
-from .pattern import RegexPattern, ValidPatternType
+from regexfactory.pattern import RegexPattern, ValidPatternType
 
 
 class Or(RegexPattern):
@@ -38,7 +39,6 @@ class Or(RegexPattern):
 
 class Range(RegexPattern):
     """
-
     For matching characters between two character indices
     (using the Unicode numbers of the input characters.)
     You can find use :func:`chr` and :func:`ord`
@@ -143,7 +143,38 @@ class NotSet(RegexPattern):
 
 class Amount(RegexPattern):
     """
-    
+    For matching multiple occurences of a :class:`ValidPatternType`.
+    You can match a specific amount of occurences only.
+    You can match with a lower bound on the number of occurences of a pattern.
+    Or with a lower and upper bound on the number occurences.
+    You can also pass a :code:`greedy=False` keyword-argument  to :class:`Amount`, (default is True)
+    which tells the regex compiler match as few characters as possible rather than the default behavior
+    which is to match as many characters as possible.
+
+    Best explained with an example.
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import Amount, Set
+
+        # We are using the same Pattern with different amounts.
+
+        content = "acbccbaabbccaaca"
+
+        specific_amount = Amount(Set(*"abc"), 2)  
+
+        lower_and_upper_bound = Amount(Set(*"abc"), 3, 5, greedy=False)  
+
+        lower_and_upper_bound_greedy = Amount(Set(*"abc"), 3, 5)  
+
+        lower_bound_only = Amount(Set(*"abc"), 5, or_more=True, greedy=False) 
+
+        print(specific_amount.findall(content))
+        print(lower_and_upper_bound_greedy.findall(content))  
+        print(lower_and_upper_bound.findall(content)) 
+        print(lower_bound_only.findall(content))
+ 
     """
 
     def __init__(
@@ -152,6 +183,7 @@ class Amount(RegexPattern):
         i: int,
         j: t.Optional[int] = None,
         or_more: bool = False,
+        greedy: bool = True,
     ) -> None:
         if j is not None:
             amount = f"{i},{j}"
@@ -159,8 +191,7 @@ class Amount(RegexPattern):
             amount = f"{i},"
         else:
             amount = f"{i}"
-
-        regex = self.get_regex(pattern) + "{" + amount + "}"
+        regex = self.get_regex(pattern) + "{" + amount + "}" + ("" if greedy else "?")
         super().__init__(regex)
 
 

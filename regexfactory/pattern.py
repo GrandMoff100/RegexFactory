@@ -2,11 +2,11 @@
 Base Pattern Module
 *******************
 
-Module for the RegexPattern class.
+Module for the :class:`RegexPattern` class.
 """
 
 import re
-from typing import Any, List, Optional, Tuple, Union, Generator
+from typing import Any, Generator, List, Optional, Tuple, Union
 
 #:
 ValidPatternType = Union[re.Pattern, str, "RegexPattern"]
@@ -16,7 +16,7 @@ ESCAPED_CHARACTERS = "()[]{}?*+-|^$\\.&~#"
 
 
 def join(*patterns: ValidPatternType) -> "RegexPattern":
-    """Umbrella function for combining :class:`ValidPatternType`'s."""
+    """Umbrella function for combining :class:`ValidPatternType`'s into a :class:`RegexPattern`."""
     joined = RegexPattern("")
     for pattern in patterns:
         joined += RegexPattern(pattern)
@@ -29,7 +29,9 @@ def escape(string: str) -> "RegexPattern":
 
 
 class RegexPattern:
-    """An object"""
+    """
+    The main object that represents Regular Expression Pattern strings for this library.
+    """
 
     regex: str
 
@@ -44,6 +46,7 @@ class RegexPattern:
         return self.regex
 
     def __add__(self, other: ValidPatternType) -> "RegexPattern":
+        """Adds two :class:`ValidPatternType`'s together, into a :class:`RegexPattern`"""
         try:
             other = self.get_regex(other)
         except TypeError:
@@ -52,9 +55,14 @@ class RegexPattern:
         return RegexPattern(self.regex + other)
 
     def __mul__(self, coefficient: int) -> "RegexPattern":
+        """Treats :class:`RegexPattern` as a string and multiplies it by an integer."""
         return RegexPattern(self.regex * coefficient)
 
     def __eq__(self, other: Any) -> bool:
+        """
+        Returns whether or not two :class:`ValidPatternType`'s have the same regex.
+        Otherwise return false.
+        """
         if isinstance(other, (str, re.Pattern, RegexPattern)):
             return self.regex == self.get_regex(other)
         return super().__eq__(other)
@@ -70,38 +78,97 @@ class RegexPattern:
             return obj.pattern
         raise TypeError(f"Can't get regex from {obj.__class__.__qualname__} object.")
 
-    def compile(self, *, flags: int = 0) -> re.Pattern:
+    def compile(
+        self,
+        *,
+        flags: int = 0,
+    ) -> re.Pattern:
         """See :func:`re.compile`."""
         return re.compile(self.regex, flags=flags)
 
-    def match(self, content: str, /, *, flags: int = 0) -> Optional[re.Match]:
+    def match(
+        self,
+        content: str,
+        /,
+        *,
+        flags: int = 0,
+    ) -> Optional[re.Match]:
         """See :meth:`re.Pattern.match`."""
         return self.compile(flags=flags).match(content)
 
-    def fullmatch(self, content: str, /, *, flags: int = 0) -> Optional[re.Match]:
+    def fullmatch(
+        self,
+        content: str,
+        /,
+        *,
+        flags: int = 0,
+    ) -> Optional[re.Match]:
         """See :meth:`re.Pattern.fullmatch`."""
         return self.compile(flags=flags).fullmatch(content)
 
-    def findall(self, content: str, /, *, flags: int = 0) -> List[Tuple[str, ...]]:
+    def findall(
+        self,
+        content: str,
+        /,
+        *,
+        flags: int = 0,
+    ) -> List[Tuple[str, ...]]:
         """See :meth:`re.Pattern.findall`."""
         return self.compile(flags=flags).search(content)
 
-    def finditer(self, content: str, /, *, flags: int = 0) -> Generator[re.Match, None, None]:
+    def finditer(
+        self,
+        content: str,
+        /,
+        *,
+        flags: int = 0,
+    ) -> Generator[re.Match, None, None]:
         """See :meth:`re.Pattern.finditer`."""
         return self.compile(flags=flags).finditer(content)
 
-    def split(self, content: str, /, maxsplit: int = 0, *, flags: int = 0) -> Tuple[str, ...]:
+    def split(
+        self,
+        content: str,
+        /,
+        maxsplit: int = 0,
+        *,
+        flags: int = 0,
+    ) -> Tuple[str, ...]:
         """See :meth:`re.Pattern.split`."""
         return self.compile(flags=flags).split(content, maxsplit=maxsplit)
 
-    def sub(self, replacement: str, content: str, /, count: int = 0, *, flags: int = 0) -> str:
+    def sub(
+        self,
+        replacement: str,
+        content: str,
+        /,
+        count: int = 0,
+        *,
+        flags: int = 0,
+    ) -> str:
         """See :meth:`re.Pattern.sub`."""
         return self.compile(flags=flags).sub(replacement, content, count=count)
 
-    def subn(self, replacement: str, content: str, /, count: int = 0, *, flags: int = 0) -> Tuple[str, int]:
+    def subn(
+        self,
+        replacement: str,
+        content: str,
+        /,
+        count: int = 0,
+        *,
+        flags: int = 0,
+    ) -> Tuple[str, int]:
         """See :meth:`re.Pattern.subn`."""
         return self.compile(flags=flags).subn(replacement, content, count=count)
 
-    def search(self, content: str, /, pos: int = 0, endpos: int = 0, *, flags: int = 0) -> Optional[re.Match]:
+    def search(
+        self,
+        content: str,
+        /,
+        pos: int = 0,
+        endpos: int = 0,
+        *,
+        flags: int = 0,
+    ) -> Optional[re.Match]:
         """See :meth:`re.Pattern.search`."""
-        return self.compile(flags).search(content, pos, endpos)
+        return self.compile(flags=flags).search(content, pos, endpos)

@@ -172,9 +172,14 @@ class NamedGroup(Extension):
         super().__init__(f"P<{name}>", pattern)
 
 
-class Reference(Extension):
+class NamedReference(Extension):
     def __init__(self, name: str):
         super().__init__("P=", name)
+
+
+class NumberedReference(RegexPattern):
+    def __init__(self, group_number: int):
+        super().__init__(f"\{number}")
 
 
 class Comment(Extension):

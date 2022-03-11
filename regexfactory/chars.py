@@ -4,7 +4,7 @@ Regex Characters
 *******************
 
 Common regex special characters, such as :code:`\d`, :code:`.`, ...
-More information about special characters in python regex available 
+More information about special characters in python regex available
 `here <https://docs.python.org/3/library/re.html#regular-expression-syntax>`__
 """
 

@@ -5,7 +5,7 @@ Regex Pattern Classes
 Module for Regex pattern classes like :code:`[^abc]` or :code:`(abc)` or :code:`a|b`
 """
 
-from typing import Optional
+import typing as t
 
 from .pattern import RegexPattern, ValidPatternType
 
@@ -38,10 +38,15 @@ class Or(RegexPattern):
 
 class Range(RegexPattern):
     """
-    For matching characters between two character indices (using the Unicode numbers of the input characters.)
-    You can find use :func:`chr` and :func:`ord` to translate characters their Unicode numbers and back again.
-    For example, :code:`chr(97)` returns the string :code:`'a'`, while :code:`chr(8364)` returns the string :code:`'€'`
-    Thus, matching characters between :code:`'a'` and :code:`'z'` is really checking whether a characters unicode number 
+
+    For matching characters between two character indices
+    (using the Unicode numbers of the input characters.)
+    You can find use :func:`chr` and :func:`ord`
+    to translate characters their Unicode numbers and back again.
+    For example, :code:`chr(97)` returns the string :code:`'a'`,
+    while :code:`chr(8364)` returns the string :code:`'€'`
+    Thus, matching characters between :code:`'a'` and :code:`'z'`
+    is really checking whether a characters unicode number
     is between :code:`ord('a')` and :code:`ord('z')`
 
     .. execute_code::
@@ -50,8 +55,8 @@ class Range(RegexPattern):
         from regexfactory import Range, Or
 
         patt = Or("Bob", Range("a", "z"))
-        
-        print(patt.findall("my job"))
+
+        print(patt.findall("my job is working for Bob"))
 
     """
 
@@ -63,6 +68,39 @@ class Range(RegexPattern):
 
 
 class Set(RegexPattern):
+    """
+    For matching a single character from a list of characters.
+    Keep in mind special characters like :code:`+` and :code:`.`
+    lose their meanings inside a set/list,
+    so need to escape them here to use them.
+
+    In practice, :code:`Set("a", ".", "z")`
+    functions the same as :code:`Or("a", ".", "z")`
+    The difference being that :class:`Or` accepts :class:`RegexPattern` 's
+    and :class:`Set` accepts characters only.
+    The other big difference being performance,
+    :class:`Or` is a lot slower than :class:`Set`.
+
+    .. execute_code::
+        :hide_headers:
+
+        import time
+        from regexfactory import Or, Set
+
+        start_set = time.time()
+        print(patt := Set(*"a.z").compile())
+        print("Set took", time.time() - start_set, "seconds to compile")
+        print("And the resulting match is", patt.match("b"))
+
+        print()
+
+        start_or = time.time()
+        print(patt := Or(*"a.z").compile())
+        print("Or took", time.time() - start_or, "seconds to compile")
+        print("And the resulting match is", patt.match("b"))
+
+    """
+
     def __init__(self, *patterns: ValidPatternType) -> None:
         regex = ""
         for pattern in patterns:
@@ -89,7 +127,7 @@ class Amount(RegexPattern):
         self,
         pattern: ValidPatternType,
         i: int,
-        j: Optional[int] = None,
+        j: t.Optional[int] = None,
         or_more: bool = False,
     ) -> None:
         if j is not None:
@@ -159,4 +197,7 @@ class Group(Extension):
         if capture is False:
             Extension.__init__(self, ":", pattern)
         else:
-            RegexPattern.__init__(self, pattern)  # pylint: disable=bad-super-call
+            RegexPattern.__init__(  # pylint: disable=non-parent-init-called
+                self,
+                pattern,
+            )

@@ -3,9 +3,9 @@ r"""
 Regex Characters
 *******************
 
-Module for common regex characters, such as :code:`\d`, :code:`.`, ...
-
-More information available `here <https://docs.python.org/3/library/re.html#regular-expression-syntax>`__
+Common regex special characters, such as :code:`\d`, :code:`.`, ...
+More information about special characters in python regex available 
+`here <https://docs.python.org/3/library/re.html#regular-expression-syntax>`__
 """
 
 from .patterns import RegexPattern

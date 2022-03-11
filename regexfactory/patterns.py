@@ -76,9 +76,10 @@ class Set(RegexPattern):
 
     In practice, :code:`Set("a", ".", "z")`
     functions the same as :code:`Or("a", ".", "z")`
-    The difference being that :class:`Or` accepts :class:`RegexPattern` 's
+    The difference being that :class:`Or` accepts :class:`RegexPattern` 's 
     and :class:`Set` accepts characters only.
-    The other big difference being performance,
+    Special characters do **NOT** lose their special meaings inside an :class:`Or` though.
+    The other big difference is performance,
     :class:`Or` is a lot slower than :class:`Set`.
 
     .. execute_code::
@@ -112,6 +113,24 @@ class Set(RegexPattern):
 
 
 class NotSet(RegexPattern):
+    """
+    For matching a character that is **NOT** in a list of characters.
+    Keep in mind special characters lose their special meanings inside :class:`NotSet`'s as well.
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import NotSet, Set
+
+        not_abc = NotSet(*"abc")
+
+        is_abc = Set(*"abc")
+
+        print(not_abc.match("x"))
+        print(is_abc.match("x"))
+
+    """
+
     def __init__(self, *patterns: ValidPatternType) -> None:
         regex = ""
         for pattern in patterns:
@@ -123,6 +142,10 @@ class NotSet(RegexPattern):
 
 
 class Amount(RegexPattern):
+    """
+    
+    """
+
     def __init__(
         self,
         pattern: ValidPatternType,
@@ -208,7 +231,7 @@ class NegLookbehind(Extension):
 
 
 class IfGoup(Extension):
-    def __init__(self, name_or_id: Union[str, int], yes_pattern: ValidPatternType, no_pattern: ValidPatternType,):
+    def __init__(self, name_or_id: t.Union[str, int], yes_pattern: ValidPatternType, no_pattern: ValidPatternType,):
         super().__init__(f"({name_or_id})", Or(yes_pattern, no_pattern))
 
 

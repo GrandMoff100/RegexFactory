@@ -76,7 +76,7 @@ class Set(RegexPattern):
 
     In practice, :code:`Set("a", ".", "z")`
     functions the same as :code:`Or("a", ".", "z")`
-    The difference being that :class:`Or` accepts :class:`RegexPattern` 's 
+    The difference being that :class:`Or` accepts :class:`RegexPattern` 's
     and :class:`Set` accepts characters only.
     Special characters do **NOT** lose their special meaings inside an :class:`Or` though.
     The other big difference is performance,
@@ -147,9 +147,10 @@ class Amount(RegexPattern):
     You can match a specific amount of occurences only.
     You can match with a lower bound on the number of occurences of a pattern.
     Or with a lower and upper bound on the number occurences.
-    You can also pass a :code:`greedy=False` keyword-argument  to :class:`Amount`, (default is True)
-    which tells the regex compiler match as few characters as possible rather than the default behavior
-    which is to match as many characters as possible.
+    You can also pass a :code:`greedy=False` keyword-argument  to :class:`Amount`,
+    (default is True)
+    which tells the regex compiler match as few characters as possible rather than
+    the default behavior which is to match as many characters as possible.
 
     Best explained with an example.
 
@@ -162,19 +163,19 @@ class Amount(RegexPattern):
 
         content = "acbccbaabbccaaca"
 
-        specific_amount = Amount(Set(*"abc"), 2)  
+        specific_amount = Amount(Set(*"abc"), 2)
 
-        lower_and_upper_bound = Amount(Set(*"abc"), 3, 5, greedy=False)  
+        lower_and_upper_bound = Amount(Set(*"abc"), 3, 5, greedy=False)
 
-        lower_and_upper_bound_greedy = Amount(Set(*"abc"), 3, 5)  
+        lower_and_upper_bound_greedy = Amount(Set(*"abc"), 3, 5)
 
-        lower_bound_only = Amount(Set(*"abc"), 5, or_more=True, greedy=False) 
+        lower_bound_only = Amount(Set(*"abc"), 5, or_more=True, greedy=False)
 
         print(specific_amount.findall(content))
-        print(lower_and_upper_bound_greedy.findall(content))  
-        print(lower_and_upper_bound.findall(content)) 
+        print(lower_and_upper_bound_greedy.findall(content))
+        print(lower_and_upper_bound.findall(content))
         print(lower_bound_only.findall(content))
- 
+
     """
 
     def __init__(
@@ -196,13 +197,18 @@ class Amount(RegexPattern):
 
 
 class Multi(RegexPattern):
+    """
+    Matches one or more occurences of the given :class:`ValidPatternType`.
+    If given :code:`match_zero=True` to the init method it matches zero or more occurences.
+    """
+
     def __init__(
         self,
         pattern: ValidPatternType,
-        accept_empty: bool = False,
+        match_zero: bool = False,
         greedy: bool = True,
     ):
-        suffix = "*" if accept_empty else "+"
+        suffix = "*" if match_zero else "+"
         if greedy is False:
             suffix += "?"
         regex = self.get_regex(pattern)
@@ -210,68 +216,202 @@ class Multi(RegexPattern):
 
 
 class Optional(RegexPattern):
-    def __init__(self, pattern: ValidPatternType) -> None:
-        regex = self.get_regex(pattern) + "?"
+    """
+    Matches the passed :class:`ValidPatternType` between zero and one times.
+    Functions the same as :code:`Amount(pattern, 0, 1)`.
+    """
+
+    def __init__(self, pattern: ValidPatternType, greedy: bool = True) -> None:
+        regex = Group(pattern, capturing=False) + "?" + ("" if greedy else "?")
         super().__init__(regex)
 
 
 class Extension(RegexPattern):
+    """Base class for extension pattern classes."""
+
     def __init__(self, prefix: str, pattern: ValidPatternType):
         regex = self.get_regex(pattern)
         super().__init__(f"(?{prefix}{regex})")
 
 
 class NamedGroup(Extension):
+    """
+    Lets you sepparate your regex into named groups that you can extract from :meth:`re.Match.groupdict`.
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import NamedGroup, WORD, Multi
+
+        stuff = "George Washington"
+
+        patt = NamedGroup("first_name", Multi(WORD)) + " " + NamedGroup("last_name", Multi(WORD))
+
+        print(match := patt.match(stuff))
+        print(match.groupdict())
+
+    """
+
     def __init__(self, name: str, pattern: ValidPatternType):
-        super().__init__(f"P<{name}>", pattern)
+        self.name = name
+        super().__init__(f"P<{self.name}>", pattern)
 
 
 class NamedReference(Extension):
-    def __init__(self, name: str):
+    """
+    Lets you reference :class:`NamedGroup`'s that you've already created, by name, or by passing the :class:`NamedGroup` itself.
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import NamedReference, NamedGroup, DIGIT, RegexPattern
+
+        timestamp = NamedGroup("time_at", f"{DIGIT * 2}:{DIGIT * 2}am")
+
+        patt = RegexPattern(f"Created at {timestamp}, and then updated at {NamedReference(timestamp)}")
+        patt2 = RegexPattern(f"Created at {timestamp}, and then updated at {NamedReference('time_at')}")
+        print(repr(patt))
+        print(repr(patt2))
+    """
+
+    def __init__(self, group_name: t.Union[str, NamedGroup]):
+        if isinstance(group_name, NamedGroup):
+            name = group_name.name
+        else:
+            name = group_name
         super().__init__("P=", name)
 
 
+
 class NumberedReference(RegexPattern):
+    """
+    Lets you reference the literal match to :class:`Group`'s that you've already created, by its group index.
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import NumberedReference, Group, DIGIT, RegexPattern
+
+        timestamp = Group(f"{DIGIT * 2}:{DIGIT * 2}am")
+
+        patt = RegexPattern(f"{timestamp},{NumberedReference(1)},{NumberedReference(1)}")
+        print(patt.match("09:59am,09:59am,09:59am"))
+        print(patt.match("09:59am,13:00am,09:50am"))
+        
+    """
+
     def __init__(self, group_number: int):
-        super().__init__(f"\\{number}")
+        super().__init__(f"\\{group_number}")
 
 
 class Comment(Extension):
+    """
+    Lets you include comment strings that are ignored by regex compilers to document your regex's.
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import Or, Comment, DIGIT, WORD
+
+        patt = Or(DIGIT, WORD)
+        patt_with_comment = patt + Comment("I love comments in regex!")
+
+        print("Pattern without comment:", patt)
+        print("Pattern with comment", patt_with_comment)
+        print(patt.match("1"))
+        print(patt.match("a"))
+        
+    """
+
     def __init__(self, content: str):
         super().__init__("#", content)
 
 
-class Lookahead(Extension):
+class IfAhead(Extension):
+    """"""
+
     def __init__(self, pattern: ValidPatternType):
         super().__init__("=", pattern)
 
 
-class NegLookahead(Extension):
+class IfNotAhead(Extension):
+    """"""
+
     def __init__(self, pattern: ValidPatternType):
         super().__init__("!", pattern)
 
 
-class Lookbehind(Extension):
+class IfBehind(Extension):
+    """"""
+
     def __init__(self, pattern: ValidPatternType):
         super().__init__("<=", pattern)
 
 
-class NegLookbehind(Extension):
+class IfNotBehind(Extension):
+    """"""
+
     def __init__(self, pattern: ValidPatternType):
         super().__init__("<!", pattern)
 
 
-class IfGoup(Extension):
-    def __init__(self, name_or_id: t.Union[str, int], yes_pattern: ValidPatternType, no_pattern: ValidPatternType,):
-        super().__init__(f"({name_or_id})", Or(yes_pattern, no_pattern))
-
-
 class Group(Extension):
-    def __init__(self, pattern: ValidPatternType, capture: bool = True) -> None:
-        if capture is False:
+    """
+    For separating your Patterns into fields for extraction.
+    Basically you use Group to reference regex inside of it later with :class:`NumberedReference`.
+    Passing :code:`capturing=False` unifies the regex inside the group into a single token
+    but does not capture the group. Seen below.
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import Group, WORD, Multi
+
+        name = Group(Multi(WORD)) + " " + Group(Multi(WORD), capturing=False)
+
+        print(name.match("Nate Larsen").groups())
+
+    """
+
+    def __init__(self, pattern: ValidPatternType, capturing: bool = True) -> None:
+        if capturing is False:
             Extension.__init__(self, ":", pattern)
         else:
             RegexPattern.__init__(  # pylint: disable=non-parent-init-called
                 self,
-                pattern,
+                f"({pattern})",
             )
+
+
+class IfGroup(Extension):
+    """
+    Matches with :code:`yes_pattern` if the given group name or group index succeeds in matching and exists,
+    otherwise matches with :code:`no_pattern`
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import IfGroup, NamedGroup, Optional
+
+        patt = (
+            Optional(NamedGroup("title", "Mr\. ")) + 
+            IfGroup("title", "Dillon", NamedGroup("first_name", "Bob")) + 
+            Optional(IfGroup("first_name", " Dillon", ""))
+        )
+        # If NamedGroup "title" matches then use the last name pattern
+        # else use the first name pattern
+
+        print(patt.match("Mr. Dillon"))
+        print(patt.match("Mr. Bob"))
+        print(patt.match("Mr Dillon"))
+        print(patt.match("Bob"))
+        print(patt.match("Bob Dillon"))
+    """
+
+    def __init__(
+        self,
+        name_or_id: t.Union[str, int],
+        yes_pattern: ValidPatternType,
+        no_pattern: ValidPatternType,
+    ):
+        super().__init__(Group(str(name_or_id)), Or(yes_pattern, no_pattern))

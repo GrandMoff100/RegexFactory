@@ -39,7 +39,7 @@ class RegexPattern:
         self.regex = self.get_regex(pattern)
 
     def __repr__(self) -> str:
-        raw_regex = repr(self.regex).replace("\\\\", "\\")
+        raw_regex = f"{self.regex!r}".replace("\\\\", "\\")
         return f"<RegexPattern {raw_regex}>"
 
     def __str__(self) -> str:
@@ -69,7 +69,10 @@ class RegexPattern:
 
     @staticmethod
     def get_regex(obj: ValidPatternType, /) -> str:
-        """Extracts the regex content from :class:`RegexPattern` or :class:`re.Pattern` objects else return the input :class:`str`."""
+        """
+        Extracts the regex content from :class:`RegexPattern` or :class:`re.Pattern` objects
+        else return the input :class:`str`.
+        """
         if isinstance(obj, RegexPattern):
             return obj.regex
         if isinstance(obj, str):

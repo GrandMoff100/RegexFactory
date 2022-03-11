@@ -179,7 +179,7 @@ class NamedReference(Extension):
 
 class NumberedReference(RegexPattern):
     def __init__(self, group_number: int):
-        super().__init__(f"\{number}")
+        super().__init__(f"\\{number}")
 
 
 class Comment(Extension):
@@ -195,6 +195,21 @@ class Lookahead(Extension):
 class NegLookahead(Extension):
     def __init__(self, pattern: ValidPatternType):
         super().__init__("!", pattern)
+
+
+class Lookbehind(Extension):
+    def __init__(self, pattern: ValidPatternType):
+        super().__init__("<=", pattern)
+
+
+class NegLookbehind(Extension):
+    def __init__(self, pattern: ValidPatternType):
+        super().__init__("<!", pattern)
+
+
+class IfGoup(Extension):
+    def __init__(self, name_or_id: Union[str, int], yes_pattern: ValidPatternType, no_pattern: ValidPatternType,):
+        super().__init__(f"({name_or_id})", Or(yes_pattern, no_pattern))
 
 
 class Group(Extension):

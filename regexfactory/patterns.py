@@ -33,7 +33,18 @@ class Or(RegexPattern):
         self,
         *patterns: ValidPatternType,
     ) -> None:
-        regex = "|".join(map(self.get_regex, patterns))
+        regex = "|".join(
+            map(
+                self.get_regex,
+                (
+                    Group(
+                        pattern,
+                        capturing=False,
+                    )
+                    for pattern in patterns
+                ),
+            )
+        )
         super().__init__((regex))
 
 
@@ -282,7 +293,6 @@ class NamedReference(Extension):
         super().__init__("P=", name)
 
 
-
 class NumberedReference(RegexPattern):
     """
     Lets you reference the literal match to :class:`Group`'s that you've already created, by its group index.
@@ -297,7 +307,7 @@ class NumberedReference(RegexPattern):
         patt = RegexPattern(f"{timestamp},{NumberedReference(1)},{NumberedReference(1)}")
         print(patt.match("09:59am,09:59am,09:59am"))
         print(patt.match("09:59am,13:00am,09:50am"))
-        
+
     """
 
     def __init__(self, group_number: int):
@@ -311,7 +321,7 @@ class Comment(Extension):
     .. execute_code::
         :hide_headers:
 
-        from regexfactory import Or, Comment, DIGIT, WORD
+        from regexfactory import Comment, DIGIT, WORD, Or
 
         patt = Or(DIGIT, WORD)
         patt_with_comment = patt + Comment("I love comments in regex!")
@@ -320,7 +330,7 @@ class Comment(Extension):
         print("Pattern with comment", patt_with_comment)
         print(patt.match("1"))
         print(patt.match("a"))
-        
+
     """
 
     def __init__(self, content: str):
@@ -328,28 +338,96 @@ class Comment(Extension):
 
 
 class IfAhead(Extension):
-    """"""
+    """
+    A mini if-statement in regex.
+    It does not consume any string content.
+    Makes the whole pattern match only if followed by the given pattern
+    at this position in the whole pattern.
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import IfAhead, escape, WORD, Multi, Or
+
+        name = Multi(WORD) + IfAhead(
+            Or(
+                escape(" Jr."),
+                escape(" Sr."),
+            )
+        )
+
+        print(name.findall("Bob Jr. and John Sr. love hanging out with each other."))
+
+    """
 
     def __init__(self, pattern: ValidPatternType):
         super().__init__("=", pattern)
 
 
 class IfNotAhead(Extension):
-    """"""
+    """
+    A mini if-statement in regex.
+    It does not consume any string content.
+    Makes the whole pattern match only if **NOT** followed by the given pattern
+    at this position in the whole pattern.
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import IfNotAhead, RegexPattern
+
+        patt = RegexPattern("Foo") + IfNotAhead("bar")
+
+        print(patt.match("Foo"))
+        print(patt.match("Foobar"))
+        print(patt.match("Fooba"))
+        
+    """
 
     def __init__(self, pattern: ValidPatternType):
         super().__init__("!", pattern)
 
 
 class IfBehind(Extension):
-    """"""
+    """
+    A mini if-statement in regex.
+    It does not consume any string content.
+    Makes the whole pattern match only if preceded by the given pattern
+    at this position in the whole pattern.
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import IfBehind, DIGIT, Multi, Optional
+
+        rank = IfBehind("Rank: ") + Multi(DIGIT)
+
+        print(rank.findall("Rank: 27, Score: 30, Power: 123"))
+
+    """
 
     def __init__(self, pattern: ValidPatternType):
         super().__init__("<=", pattern)
 
 
 class IfNotBehind(Extension):
-    """"""
+    """
+    A mini if-statement in regex.
+    It does not consume any string content.
+    Makes the whole pattern match only if **NOT** preceded by the given pattern
+    at this position in the whole pattern.
+
+    .. execute_code::
+        :hide_headers:
+
+        from regexfactory import IfNotBehind, WORD, Multi, DIGIT
+
+        patt = IfNotBehind(WORD) + Multi(DIGIT)
+
+        print(patt.match("b64"))
+        print(patt.match("64"))
+
+    """
 
     def __init__(self, pattern: ValidPatternType):
         super().__init__("<!", pattern)
@@ -394,8 +472,8 @@ class IfGroup(Extension):
         from regexfactory import IfGroup, NamedGroup, Optional
 
         patt = (
-            Optional(NamedGroup("title", "Mr\. ")) + 
-            IfGroup("title", "Dillon", NamedGroup("first_name", "Bob")) + 
+            Optional(NamedGroup("title", "Mr\. ")) +
+            IfGroup("title", "Dillon", NamedGroup("first_name", "Bob")) +
             Optional(IfGroup("first_name", " Dillon", ""))
         )
         # If NamedGroup "title" matches then use the last name pattern

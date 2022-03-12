@@ -13,7 +13,7 @@ The regexfactory module documentation!
 """
 
 from .chars import *
-from .pattern import RegexPattern
+from .pattern import RegexPattern, join, escape
 from .patterns import *
 
 __version__ = "0.0.0"

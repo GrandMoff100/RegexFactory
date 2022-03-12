@@ -6,7 +6,7 @@ Module for the :class:`RegexPattern` class.
 """
 
 import re
-from typing import Any, List, Optional, Tuple, Union, Iterator
+from typing import Any, Iterator, List, Optional, Tuple, Union
 
 #:
 ValidPatternType = Union[re.Pattern, str, "RegexPattern"]

@@ -71,7 +71,7 @@ html_favicon = "./images/favicon.png"
 
 autodoc_default_options = {
     "members": None,
-    "exclude-members": "regex",
+    "exclude-members": "regex, Extension",
     "undoc-members": True,
     "member-order": "bysource",
     "special-members": "__add__, __mul__",

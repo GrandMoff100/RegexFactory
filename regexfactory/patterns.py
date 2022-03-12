@@ -370,7 +370,7 @@ class IfNotAhead(Extension):
         print(patt.match("Foo"))
         print(patt.match("Foobar"))
         print(patt.match("Fooba"))
-        
+
     """
 
     def __init__(self, pattern: ValidPatternType):
@@ -454,10 +454,10 @@ class IfGroup(Extension):
 
     .. exec_code::
 
-        from regexfactory import IfGroup, NamedGroup, Optional
+        from regexfactory import IfGroup, NamedGroup, Optional, escape
 
         patt = (
-            Optional(NamedGroup("title", "Mr\. ")) +
+            Optional(NamedGroup("title", escape("Mr. "))) +
             IfGroup("title", "Dillon", NamedGroup("first_name", "Bob")) +
             Optional(IfGroup("first_name", " Dillon", ""))
         )
@@ -477,4 +477,4 @@ class IfGroup(Extension):
         yes_pattern: ValidPatternType,
         no_pattern: ValidPatternType,
     ):
-        super().__init__(Group(str(name_or_id)), Or(yes_pattern, no_pattern))
+        super().__init__(str(Group(str(name_or_id))), Or(yes_pattern, no_pattern))

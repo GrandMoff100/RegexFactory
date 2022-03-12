@@ -6,7 +6,7 @@ Module for the :class:`RegexPattern` class.
 """
 
 import re
-from typing import Any, Generator, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union, Iterator
 
 #:
 ValidPatternType = Union[re.Pattern, str, "RegexPattern"]
@@ -125,7 +125,7 @@ class RegexPattern:
         /,
         *,
         flags: int = 0,
-    ) -> Generator[re.Match, None, None]:
+    ) -> Iterator[re.Match]:
         """See :meth:`re.Pattern.finditer`."""
         return self.compile(flags=flags).finditer(content)
 
@@ -136,7 +136,7 @@ class RegexPattern:
         maxsplit: int = 0,
         *,
         flags: int = 0,
-    ) -> Tuple[str, ...]:
+    ) -> List[Any]:
         """See :meth:`re.Pattern.split`."""
         return self.compile(flags=flags).split(content, maxsplit=maxsplit)
 

@@ -5,6 +5,7 @@ Dynamically construct python regex patterns.
 ## Examples
 
 ### Matching Initials
+
 Say you want a regex pattern to match the initials of someones name.
 
 ```python
@@ -14,8 +15,7 @@ from regexfactory import Amount, Range
 
 pattern = Amount(Range("A", "Z"), 2, 3)
 
-matches = re.findall(
-    str(pattern),
+matches = pattern.findall(
     "My initials are BDP. Valorie's are VO"
 )
 
@@ -56,14 +56,11 @@ sentence = """
 My favorite color is #000000. I also like 5fb8a0. My second favorite color is #FF21FF.
 """
 
-matches = re.findall(
-    str(pattern),
-    sentence
-)
+matches = pattern.findall(sentence)
 print(matches)
 ```
 
-```
+```bash
 ['#000000', '5fb8a0', '#FF21FF']
 ```
 
@@ -73,13 +70,18 @@ Or what if you want to match urls in html content?
 
 ```python
 from regexfactory import *
-import re
 
 
 protocol = Amount(Range("a", "z"), 1, or_more=True)
 host = Amount(Set(WORD, DIGIT, '.'), 1, or_more=True)
-port = Optional(Group(RegexPattern(":") + Amount(DIGIT, 1, or_more=True)))
-path = Amount(Group(RegexPattern('/') + Group(Amount(NotSet('/', '#', '?', '&', WHITESPACE), 0, or_more=True))), 0, or_more=True)
+port = Optional(IfBehind(":") + Multi(DIGIT))
+path = Multi(
+    RegexPattern('/') + Multi(
+        NotSet('/', '#', '?', '&', WHITESPACE),
+        match_zero=True
+    ),
+    match_zero=True
+)
 patt = protocol + RegexPattern("://") + host + port + path
 
 
@@ -87,11 +89,11 @@ patt = protocol + RegexPattern("://") + host + port + path
 sentence = "This is a cool url, https://github.com/GrandMoff100/RegexFactory/ "
 print(patt)
 
-print(re.search(str(patt), sentence))
+print(patt.search(sentence))
 ```
 
 ```
-[a-z]{1,}://[\w\d.]{1,}(:\d{1,})?(/([^/#?&\s]{0,})){0,}
+[a-z]{1,}://[\w\d.]{1,}(?:\d{1,})?(/([^/#?&\s]{0,})){0,}
 <re.Match object; span=(15, 51), match='https://github.com/GrandMoff100/RegexFactory/'>
 ```
 

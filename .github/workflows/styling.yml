@@ -2,6 +2,13 @@ name: Code Styling
 
 on:
   pull_request:
+    paths:
+      - "**.py"
+  push:
+    branches:
+      - master
+    paths:
+      - "**.py"
   workflow_dispatch:
 
 jobs:

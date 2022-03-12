@@ -222,7 +222,7 @@ class Multi(RegexPattern):
         suffix = "*" if match_zero else "+"
         if greedy is False:
             suffix += "?"
-        regex = self.get_regex(pattern)
+        regex = self.get_regex(Group(pattern, capturing=False))
         super().__init__(regex + suffix)
 
 

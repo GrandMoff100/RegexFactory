@@ -32,7 +32,7 @@ jobs:
       - name: Run linters
         run: |
           isort regexfactory --check
-          black regexfactory --check-only
+          black regexfactory --check
           pylint regexfactory
       - name: Run flake8
         uses: suo/flake8-github-action@releases/v1

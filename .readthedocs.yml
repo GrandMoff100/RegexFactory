@@ -1,0 +1,12 @@
+# .readthedocs.yaml
+version: 2
+build:
+  os: ubuntu-20.04
+  tools:
+    python: "3.8.12"
+
+sphinx:
+  configuration: docs/conf.py
+python:
+   install:
+   - requirements: docs/doc_requirements.txt

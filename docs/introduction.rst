@@ -5,8 +5,7 @@ RegexFactory is a very very lightweight Python library that allows you to intuit
 Regular expressions are strings of text used to find and extract information from other strings and text documents.
 See this quick example.
 
-.. execute_code::
-   :hide_headers:
+.. exec_code::
 
    from regexfactory import Amount, Optional, Or, Range, Set
 

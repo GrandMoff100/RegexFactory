@@ -1,2 +1,2 @@
 sphinx-rtd-theme
-sphinx-execute-code-python3
+sphinx-exec-code

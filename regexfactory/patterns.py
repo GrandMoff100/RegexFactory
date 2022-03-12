@@ -16,8 +16,7 @@ class Or(RegexPattern):
     For matching multiple patterns.
     This pattern `or` that pattern `or` that other pattern.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import Or
 
@@ -60,8 +59,7 @@ class Range(RegexPattern):
     is really checking whether a characters unicode number
     is between :code:`ord('a')` and :code:`ord('z')`
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import Range, Or
 
@@ -93,8 +91,7 @@ class Set(RegexPattern):
     The other big difference is performance,
     :class:`Or` is a lot slower than :class:`Set`.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         import time
         from regexfactory import Or, Set
@@ -128,8 +125,7 @@ class NotSet(RegexPattern):
     For matching a character that is **NOT** in a list of characters.
     Keep in mind special characters lose their special meanings inside :class:`NotSet`'s as well.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import NotSet, Set
 
@@ -165,8 +161,7 @@ class Amount(RegexPattern):
 
     Best explained with an example.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import Amount, Set
 
@@ -249,8 +244,7 @@ class NamedGroup(Extension):
     """
     Lets you sepparate your regex into named groups that you can extract from :meth:`re.Match.groupdict`.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import NamedGroup, WORD, Multi
 
@@ -272,8 +266,7 @@ class NamedReference(Extension):
     """
     Lets you reference :class:`NamedGroup`'s that you've already created, by name, or by passing the :class:`NamedGroup` itself.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import NamedReference, NamedGroup, DIGIT, RegexPattern
 
@@ -297,8 +290,7 @@ class NumberedReference(RegexPattern):
     """
     Lets you reference the literal match to :class:`Group`'s that you've already created, by its group index.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import NumberedReference, Group, DIGIT, RegexPattern
 
@@ -318,8 +310,7 @@ class Comment(Extension):
     """
     Lets you include comment strings that are ignored by regex compilers to document your regex's.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import Comment, DIGIT, WORD, Or
 
@@ -344,8 +335,7 @@ class IfAhead(Extension):
     Makes the whole pattern match only if followed by the given pattern
     at this position in the whole pattern.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import IfAhead, escape, WORD, Multi, Or
 
@@ -371,8 +361,7 @@ class IfNotAhead(Extension):
     Makes the whole pattern match only if **NOT** followed by the given pattern
     at this position in the whole pattern.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import IfNotAhead, RegexPattern
 
@@ -381,7 +370,7 @@ class IfNotAhead(Extension):
         print(patt.match("Foo"))
         print(patt.match("Foobar"))
         print(patt.match("Fooba"))
-        
+
     """
 
     def __init__(self, pattern: ValidPatternType):
@@ -395,8 +384,7 @@ class IfBehind(Extension):
     Makes the whole pattern match only if preceded by the given pattern
     at this position in the whole pattern.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import IfBehind, DIGIT, Multi, Optional
 
@@ -417,8 +405,7 @@ class IfNotBehind(Extension):
     Makes the whole pattern match only if **NOT** preceded by the given pattern
     at this position in the whole pattern.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import IfNotBehind, WORD, Multi, DIGIT
 
@@ -440,8 +427,7 @@ class Group(Extension):
     Passing :code:`capturing=False` unifies the regex inside the group into a single token
     but does not capture the group. Seen below.
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
         from regexfactory import Group, WORD, Multi
 
@@ -466,13 +452,12 @@ class IfGroup(Extension):
     Matches with :code:`yes_pattern` if the given group name or group index succeeds in matching and exists,
     otherwise matches with :code:`no_pattern`
 
-    .. execute_code::
-        :hide_headers:
+    .. exec_code::
 
-        from regexfactory import IfGroup, NamedGroup, Optional
+        from regexfactory import IfGroup, NamedGroup, Optional, escape
 
         patt = (
-            Optional(NamedGroup("title", "Mr\. ")) +
+            Optional(NamedGroup("title", escape("Mr. "))) +
             IfGroup("title", "Dillon", NamedGroup("first_name", "Bob")) +
             Optional(IfGroup("first_name", " Dillon", ""))
         )
@@ -492,4 +477,4 @@ class IfGroup(Extension):
         yes_pattern: ValidPatternType,
         no_pattern: ValidPatternType,
     ):
-        super().__init__(Group(str(name_or_id)), Or(yes_pattern, no_pattern))
+        super().__init__(str(Group(str(name_or_id))), Or(yes_pattern, no_pattern))

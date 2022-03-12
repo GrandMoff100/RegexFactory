@@ -22,7 +22,7 @@ matches = pattern.findall(
 print(matches)
 ```
 
-```
+```bash
 ['BDP', 'VO']
 ```
 
@@ -92,7 +92,7 @@ print(patt)
 print(patt.search(sentence))
 ```
 
-```
+```bash
 [a-z]{1,}://[\w\d.]{1,}(?:\d{1,})?(/([^/#?&\s]{0,})){0,}
 <re.Match object; span=(15, 51), match='https://github.com/GrandMoff100/RegexFactory/'>
 ```

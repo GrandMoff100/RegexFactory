@@ -151,7 +151,7 @@ class NotSet(RegexPattern):
 class Amount(RegexPattern):
     """
     For matching multiple occurences of a :class:`ValidPatternType`.
-    You can match a specific amount of occurences only.
+    You can match a specific amount of occurences.
     You can match with a lower bound on the number of occurences of a pattern.
     Or with a lower and upper bound on the number occurences.
     You can also pass a :code:`greedy=False` keyword-argument  to :class:`Amount`,

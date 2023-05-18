@@ -198,7 +198,7 @@ class Amount(RegexPattern):
             amount = f"{i},"
         else:
             amount = f"{i}"
-        regex = self.get_regex(pattern) + "{" + amount + "}" + ("" if greedy else "?")
+        regex = self.get_regex(Group(pattern, capturing=False)) + "{" + amount + "}" + ("" if greedy and (or_more or j is not None) else "?")
         super().__init__(regex)
 
 

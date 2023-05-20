@@ -67,6 +67,10 @@ class RegexPattern:
             return self.regex == self.get_regex(other)
         return super().__eq__(other)
 
+    def __hash__(self) -> int:
+        """Hashes the regex string."""
+        return hash(self.regex)
+
     @staticmethod
     def get_regex(obj: ValidPatternType, /) -> str:
         """

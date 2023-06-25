@@ -1,10 +1,7 @@
 from regexfactory import Amount
 import pytest
-from hypothesis import (
-    given,
-    strategies as st
-)
-from .strategies import *
+from hypothesis import given, strategies as st
+from tests.strategies import build_amount_greedy, build_bounds
 
 
 @pytest.mark.patterns
@@ -43,3 +40,15 @@ def test_amount_non_greedy(word, count):
     actual = Amount(word, count, greedy=False)
     assert actual.regex.endswith("?")
 
+
+@given(st.builds(
+    build_amount_greedy,
+    words=st.text(min_size=1),
+    count=st.integers(min_value=1),
+    greedy=st.booleans()
+))
+def test_amount_greedy(amtTuple: tuple[Amount, bool]):
+    amt = amtTuple[0]
+    greedy = amtTuple[1]
+    ## if greedy = false then regex ends with ?
+    assert greedy != amt.regex.endswith("?")

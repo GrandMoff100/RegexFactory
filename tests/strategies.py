@@ -1,9 +1,6 @@
-from typing import Optional
-
 from hypothesis import strategies as st
 
-from regexfactory import Amount
-from regexfactory.pattern import ESCAPED_CHARACTERS, ValidPatternType
+from regexfactory.pattern import ESCAPED_CHARACTERS
 
 # Strategy to generate text that avoids escaped characters
 non_escaped_text = st.text(
@@ -12,6 +9,7 @@ non_escaped_text = st.text(
         blacklist_characters=list(ESCAPED_CHARACTERS)
     )
 )
+
 
 # Strategy to produce either None or a positive integer
 optional_step = st.one_of(
@@ -26,3 +24,4 @@ def build_bounds(lower_bound, step) -> range:
     """
     upper_bound = lower_bound + step
     return range(lower_bound, upper_bound + 1)
+

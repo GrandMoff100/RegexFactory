@@ -1,12 +1,22 @@
-from regexfactory import Amount
-from regexfactory.pattern import ESCAPED_CHARACTERS, ValidPatternType
-from string import printable
 from typing import Optional
 
+from hypothesis import strategies as st
 
-## Variable that defines all characters that are not used in escapes.
-non_escape_printable = "".join(
-    list(filter(lambda z: z not in list(ESCAPED_CHARACTERS), list(printable)))
+from regexfactory import Amount
+from regexfactory.pattern import ESCAPED_CHARACTERS, ValidPatternType
+
+# Strategy to generate text that avoids escaped characters
+non_escaped_text = st.text(
+    min_size=1,
+    alphabet=st.characters(
+        blacklist_characters=list(ESCAPED_CHARACTERS)
+    )
+)
+
+# Strategy to produce either None or a positive integer
+optional_step = st.one_of(
+    st.none(),
+    st.integers(min_value=1)
 )
 
 
@@ -20,9 +30,9 @@ def build_bounds(lower_bound, step) -> range:
 
 def build_amount(pattern: ValidPatternType, start: int, or_more: bool, greedy: bool, step: Optional[int]):
     """
-    General Amount builder. This function will be repurposed with hard-coded
-    values for a parameter when used with more specific use cases.
-    Note that the `j` parameter is constructed as the step plus start
+    General Amount builder. Note that the `j` parameter is constructed as
+        the step plus start when step is defined. When step is None we assume
+        that no upper bound is present.
     """
     stop_value = None
     if step is not None:
@@ -35,19 +45,3 @@ def build_amount(pattern: ValidPatternType, start: int, or_more: bool, greedy: b
         greedy=greedy
     )
 
-
-
-
-def build_amount_greedy(words, count, greedy):
-    """
-    Function to build a greedy instance of `Amount` .
-    """
-    return (
-        Amount(
-            words,
-            count,
-            or_more=False,
-            greedy=greedy
-        ),
-        greedy
-    )

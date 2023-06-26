@@ -32,5 +32,3 @@ jobs:
 
   code_style_checking:
     uses: ./.github/workflows/styling.yml
-    secrets:
-      envPAT: ${{ secrets.envPAT }}

@@ -1,9 +1,6 @@
-from regexfactory import Range
 import pytest
 
-
-def convert_to_ord(character: str) -> int:
-    ord(character.encode("utf-8"))
+from regexfactory import Range
 
 
 @pytest.mark.patterns

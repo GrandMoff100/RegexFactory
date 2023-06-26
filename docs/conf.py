@@ -28,12 +28,9 @@ author = "Nate Larsen"
 release = __version__
 branch = (
     "master"
-    if __version__.endswith("a")
-    or __version__.endswith("b")
-    or __version__.endswith("rc")
+    if __version__.endswith("a") or __version__.endswith("b") or __version__.endswith("rc")
     else "v" + __version__
 )
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -52,7 +49,6 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 autodoc_default_options = {"members": None, "annotation": None}
-
 
 # -- Options for HTML output -------------------------------------------------
 

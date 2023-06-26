@@ -13,13 +13,13 @@ def test_numeric_range_simple():
 @pytest.mark.patterns
 @pytest.mark.parametrize(
     "start, stop, expected",
-    [("0", "9", "[0-9]"),
-     ("a", "f", "[a-f]"),
-     ("r", "q", "[r-q]"),
-     ("A", "Z", "[A-Z]")]
+    [
+        ("0", "9", "[0-9]"),
+        ("a", "f", "[a-f]"),
+        ("r", "q", "[r-q]"),
+        ("A", "Z", "[A-Z]"),
+    ],
 )
 def test_numeric_range_parameters(start, stop, expected):
     actual = Range(start=start, stop=stop)
     assert actual.regex == expected
-
-

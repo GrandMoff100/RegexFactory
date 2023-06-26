@@ -20,13 +20,7 @@ from regexfactory import Or
 def test_matching_or(arr: list):
     actual = Or(*arr)
     if len(arr) == 1:
-        assert (
-            isinstance(actual.match(arr[0]), re.Match)
-        )
+        assert isinstance(actual.match(arr[0]), re.Match)
     else:
         for value in arr:
-            assert (
-                isinstance(actual.match(value), re.Match)
-            )
-
-
+            assert isinstance(actual.match(value), re.Match)

@@ -8,7 +8,13 @@ from strategies import build_bounds, optional_step
 from regexfactory import Amount, ValidPatternType
 
 
-def build_amount(pattern: ValidPatternType, start: int, or_more: bool, greedy: bool, step: Optional[int]):
+def build_amount(
+    pattern: ValidPatternType,
+    start: int,
+    or_more: bool,
+    greedy: bool,
+    step: Optional[int],
+):
     """
     General Amount builder. Note that the `j` parameter is constructed as
         the step plus start when step is defined. When step is None we assume
@@ -18,11 +24,7 @@ def build_amount(pattern: ValidPatternType, start: int, or_more: bool, greedy: b
     if step is not None:
         stop_value = start + step
     return Amount(
-        pattern=pattern,
-        i=start,
-        j=stop_value,
-        or_more=or_more,
-        greedy=greedy
+        pattern=pattern, i=start, j=stop_value, or_more=or_more, greedy=greedy
     )
 
 
@@ -43,8 +45,8 @@ def test_amount_single_count(word, count):
     st.builds(
         build_bounds,
         lower_bound=st.integers(min_value=1),
-        step=st.integers(min_value=1)
-    )
+        step=st.integers(min_value=1),
+    ),
 )
 def test_amount_lower_upper(word, bound: range):
     """
@@ -52,7 +54,9 @@ def test_amount_lower_upper(word, bound: range):
         regex of the resulting `Amount` will be of the form {word}{lower,upper}.
     """
     actual = Amount(word, bound.start, bound.stop)
-    expected = "{word}{{{lower},{upper}}}".format(word=word, lower=str(bound.start), upper=str(bound.stop))
+    expected = "{word}{{{lower},{upper}}}".format(
+        word=word, lower=str(bound.start), upper=str(bound.stop)
+    )
     assert actual.regex == expected
 
 
@@ -68,14 +72,16 @@ def test_amount_or_more(word, count):
 
 
 @pytest.mark.patterns
-@given(st.builds(
-    build_amount,
-    pattern=st.text(min_size=1),
-    start=st.integers(min_value=1),
-    or_more=st.booleans(),
-    greedy=st.just(False),
-    step=optional_step
-))
+@given(
+    st.builds(
+        build_amount,
+        pattern=st.text(min_size=1),
+        start=st.integers(min_value=1),
+        or_more=st.booleans(),
+        greedy=st.just(False),
+        step=optional_step,
+    )
+)
 def test_amount_non_greedy(amt):
     """
     Test to ensure that instances of Amount with greedy as False will end with "?"

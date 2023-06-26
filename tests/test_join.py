@@ -7,14 +7,7 @@ from regexfactory.pattern import join
 
 
 @pytest.mark.pattern
-@given(
-    st.lists(
-        elements=non_escaped_text,
-        min_size=1,
-        max_size=10,
-        unique=True
-    )
-)
+@given(st.lists(elements=non_escaped_text, min_size=1, max_size=10, unique=True))
 @example(words=["0", "1"])
 def test_join(words: list):
     """

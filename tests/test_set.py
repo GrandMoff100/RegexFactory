@@ -9,15 +9,8 @@ from regexfactory import Set
 
 
 @pytest.mark.patterns
-@given(
-    st.lists(
-        elements=non_escape_char,
-        min_size=1
-    )
-)
+@given(st.lists(elements=non_escape_char, min_size=1))
 def test_set(chars: list):
     actual = Set(*chars)
     for value in chars:
-        assert (
-            isinstance(actual.match(value), re.Match)
-        )
+        assert isinstance(actual.match(value), re.Match)

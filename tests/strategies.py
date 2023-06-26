@@ -26,22 +26,3 @@ def build_bounds(lower_bound, step) -> range:
     """
     upper_bound = lower_bound + step
     return range(lower_bound, upper_bound + 1)
-
-
-def build_amount(pattern: ValidPatternType, start: int, or_more: bool, greedy: bool, step: Optional[int]):
-    """
-    General Amount builder. Note that the `j` parameter is constructed as
-        the step plus start when step is defined. When step is None we assume
-        that no upper bound is present.
-    """
-    stop_value = None
-    if step is not None:
-        stop_value = start + step
-    return Amount(
-        pattern=pattern,
-        i=start,
-        j=stop_value,
-        or_more=or_more,
-        greedy=greedy
-    )
-

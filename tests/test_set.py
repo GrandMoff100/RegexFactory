@@ -1,16 +1,18 @@
 import re
 
 import pytest
-from hypothesis import given, strategies as st
+from hypothesis import given
+from hypothesis import strategies as st
+from strategies import non_escape_char
 
 from regexfactory import Set
-from regexfactory.pattern import ESCAPED_CHARACTERS
 
 
 @pytest.mark.patterns
 @given(
     st.lists(
-        elements=st.characters(blacklist_characters=list(ESCAPED_CHARACTERS)),
+        elements=non_escape_char,
+        min_size=1
     )
 )
 def test_set(chars: list):

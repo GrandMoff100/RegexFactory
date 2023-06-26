@@ -2,12 +2,16 @@ from hypothesis import strategies as st
 
 from regexfactory.pattern import ESCAPED_CHARACTERS
 
+# Strategy to generate characters that are not used in escapes
+non_escape_char = st.characters(
+    blacklist_characters=list(ESCAPED_CHARACTERS)
+)
+
+
 # Strategy to generate text that avoids escaped characters
 non_escaped_text = st.text(
     min_size=1,
-    alphabet=st.characters(
-        blacklist_characters=list(ESCAPED_CHARACTERS)
-    )
+    alphabet=non_escape_char
 )
 
 

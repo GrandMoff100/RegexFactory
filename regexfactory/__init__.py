@@ -12,8 +12,37 @@ The regexfactory module documentation!
 
 """
 
-from .chars import *
+from .chars import (
+    ANCHOR_END,
+    ANCHOR_START,
+    ANY,
+    DIGIT,
+    NOTDIGIT,
+    NOTWHITESPACE,
+    NOTWORD,
+    WHITESPACE,
+    WORD,
+)
 from .pattern import RegexPattern, escape, join
-from .patterns import *
+from .patterns import (
+    Amount,
+    Comment,
+    Extension,
+    Group,
+    IfAhead,
+    IfBehind,
+    IfGroup,
+    IfNotAhead,
+    IfNotBehind,
+    Multi,
+    NamedGroup,
+    NamedReference,
+    NotSet,
+    NumberedReference,
+    Optional,
+    Or,
+    Range,
+    Set,
+)
 
 __version__ = "1.0.0"

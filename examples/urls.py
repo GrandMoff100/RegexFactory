@@ -18,8 +18,7 @@ host = Amount(Set(WORD, DIGIT, "."), 1, or_more=True)
 port = Optional(Group(RegexPattern(":") + Amount(DIGIT, 1, or_more=True)))
 path = Amount(
     Group(
-        RegexPattern("/")
-        + Group(Amount(NotSet("/", "#", "?", "&", WHITESPACE), 0, or_more=True))
+        RegexPattern("/") + Group(Amount(NotSet("/", "#", "?", "&", WHITESPACE), 0, or_more=True))
     ),
     0,
     or_more=True,

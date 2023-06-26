@@ -41,6 +41,7 @@ from .patterns import (
     NumberedReference,
     Optional,
     Or,
+    Range,
     Set,
 )
 

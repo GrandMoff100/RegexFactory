@@ -31,6 +31,6 @@ jobs:
         run: pytest
 
   code_style_checking:
-    uses: GrandMoff100/RegexFactory/.github/workflows/styling.yml@master
+    uses: ./.github/workflows/styling.yml
     secrets:
       envPAT: ${{ secrets.envPAT }}

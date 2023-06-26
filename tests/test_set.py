@@ -21,4 +21,3 @@ def test_set(chars: list):
         assert (
             isinstance(actual.match(value), re.Match)
         )
-

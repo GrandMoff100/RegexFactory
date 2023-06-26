@@ -8,19 +8,12 @@ on:
 
 jobs:
   testing:
-    strategy:
-      matrix:
-        python:
-          - "3.8"
-          - "3.9"
-          - "3.10"
-          - "3.11"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python }}
+          python-version: '3.x'
 
       - name: Install deps
         run: |

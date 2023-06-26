@@ -1,8 +1,11 @@
+from typing import Optional
+
 import pytest
-from hypothesis import given, strategies as st
+from hypothesis import given
+from hypothesis import strategies as st
+from strategies import build_bounds, optional_step
 
 from regexfactory import Amount, ValidPatternType
-from strategies import build_bounds, optional_step
 
 
 def build_amount(pattern: ValidPatternType, start: int, or_more: bool, greedy: bool, step: Optional[int]):

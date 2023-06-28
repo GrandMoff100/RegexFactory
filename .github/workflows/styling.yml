@@ -10,6 +10,7 @@ on:
     paths:
       - "**.py"
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   code_style_checking:

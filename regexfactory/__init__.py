@@ -23,7 +23,7 @@ from .chars import (
     WHITESPACE,
     WORD,
 )
-from .pattern import RegexPattern, escape, join
+from .pattern import ESCAPED_CHARACTERS, RegexPattern, ValidPatternType, escape, join
 from .patterns import (
     Amount,
     Comment,

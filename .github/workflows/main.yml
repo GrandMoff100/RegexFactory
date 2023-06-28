@@ -1,0 +1,27 @@
+name: CI Testing
+
+on:
+  push:
+    pull_request:
+
+    workflow_dispatch:
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install deps
+        run: |
+          pip3 --version
+          pip3 install .[dev]
+
+      - name: Run tests
+        run: pytest
+
+  code_style_checking:
+    uses: ./.github/workflows/styling.yml

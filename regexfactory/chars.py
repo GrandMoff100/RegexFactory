@@ -7,7 +7,7 @@ More information about special characters in python regex available
 `here <https://docs.python.org/3/library/re.html#regular-expression-syntax>`__
 """
 
-from .patterns import RegexPattern
+from .pattern import RegexPattern
 
 #: (Dot.) In the default mode, this matches any character except a newline. If the :data:`re.DOTALL` flag has been specified, this matches any character including a newline.
 ANY = RegexPattern(r".")

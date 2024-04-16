@@ -5,6 +5,9 @@ Base Pattern Module
 Module for the :class:`RegexPattern` class.
 """
 
+# pylint: disable=cyclic-import
+
+
 import re
 from typing import Any, Iterator, List, Optional, Tuple, Union
 
@@ -54,7 +57,7 @@ class RegexPattern:
 
     def __add__(self, other: ValidPatternType) -> "RegexPattern":
         """Adds two :class:`ValidPatternType`'s together, into a :class:`RegexPattern`"""
-        from .patterns import Group  # prevent circular import
+        from .patterns import Group  # pylint: disable=import-outside-toplevel
 
         try:
             other_pattern = (
@@ -75,7 +78,7 @@ class RegexPattern:
 
     def __radd__(self, other: ValidPatternType) -> "RegexPattern":
         """Adds two :class:`ValidPatternType`'s together, into a :class:`RegexPattern`"""
-        from .patterns import Group  # prevent circular import
+        from .patterns import Group  # pylint: disable=import-outside-toplevel
 
         try:
             other_pattern = (

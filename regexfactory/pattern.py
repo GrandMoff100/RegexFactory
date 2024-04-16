@@ -41,7 +41,9 @@ class RegexPattern:
 
     def __init__(self, pattern: ValidPatternType, /, _precedence: int = 1) -> None:
         self.regex = self.get_regex(pattern)
-        self.precedence = _precedence if not isinstance(pattern, RegexPattern) else pattern.precedence
+        self.precedence = (
+            _precedence if not isinstance(pattern, RegexPattern) else pattern.precedence
+        )
 
     def __repr__(self) -> str:
         raw_regex = f"{self.regex!r}".replace("\\\\", "\\")
@@ -55,14 +57,20 @@ class RegexPattern:
         from .patterns import Group  # prevent circular import
 
         try:
-            other_pattern = RegexPattern(other) if not isinstance(other, RegexPattern) else other
+            other_pattern = (
+                RegexPattern(other) if not isinstance(other, RegexPattern) else other
+            )
         except TypeError:
             return NotImplemented
 
         if self.precedence > other_pattern.precedence:
-            return RegexPattern(self.regex + self.get_regex(Group(other_pattern, capturing=False)))
+            return RegexPattern(
+                self.regex + self.get_regex(Group(other_pattern, capturing=False))
+            )
         if self.precedence < other_pattern.precedence:
-            return RegexPattern(self.get_regex(Group(self, capturing=False)) + other_pattern.regex)
+            return RegexPattern(
+                self.get_regex(Group(self, capturing=False)) + other_pattern.regex
+            )
         return RegexPattern(self.regex + other_pattern.regex)
 
     def __radd__(self, other: ValidPatternType) -> "RegexPattern":
@@ -70,14 +78,20 @@ class RegexPattern:
         from .patterns import Group  # prevent circular import
 
         try:
-            other_pattern = RegexPattern(other) if not isinstance(other, RegexPattern) else other
+            other_pattern = (
+                RegexPattern(other) if not isinstance(other, RegexPattern) else other
+            )
         except TypeError:
             return NotImplemented
 
         if self.precedence > other_pattern.precedence:
-            return RegexPattern(self.get_regex(Group(other_pattern, capturing=False)) + self.regex)
+            return RegexPattern(
+                self.get_regex(Group(other_pattern, capturing=False)) + self.regex
+            )
         if self.precedence < other_pattern.precedence:
-            return RegexPattern(other_pattern.regex + self.get_regex(Group(self, capturing=False)))
+            return RegexPattern(
+                other_pattern.regex + self.get_regex(Group(self, capturing=False))
+            )
         return RegexPattern(other_pattern.regex + self.regex)
 
     def __mul__(self, coefficient: int) -> "RegexPattern":
@@ -90,7 +104,10 @@ class RegexPattern:
         Otherwise return false.
         """
         if isinstance(other, (str, re.Pattern, RegexPattern)):
-            return self.regex == RegexPattern(other).regex and self.precedence == RegexPattern(other).precedence
+            return (
+                self.regex == RegexPattern(other).regex
+                and self.precedence == RegexPattern(other).precedence
+            )
         return super().__eq__(other)
 
     def __hash__(self) -> int:

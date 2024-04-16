@@ -28,7 +28,9 @@ author = "Nate Larsen"
 release = __version__
 branch = (
     "master"
-    if __version__.endswith("a") or __version__.endswith("b") or __version__.endswith("rc")
+    if __version__.endswith("a")
+    or __version__.endswith("b")
+    or __version__.endswith("rc")
     else "v" + __version__
 )
 

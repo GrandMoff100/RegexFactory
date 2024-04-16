@@ -35,10 +35,6 @@ jobs:
           isort regexfactory --check
           black regexfactory --check
           pylint regexfactory
-      - name: Run flake8
-        uses: suo/flake8-github-action@releases/v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
   type_checking:
     runs-on: ubuntu-latest

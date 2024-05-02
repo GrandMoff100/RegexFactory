@@ -105,14 +105,16 @@ class Set(RegexPattern):
 
     """
 
-    def __init__(self, *patterns: Range | str) -> None:
-        regex = ""
-        for pattern in patterns:
-            if isinstance(pattern, Range):
-                regex += f"{pattern.start}-{pattern.stop}"
-            else:
-                regex += pattern
-        super().__init__(f"[{regex}]")
+    def __init__(self, *patterns: ValidPatternType) -> None:
+        # TODO
+        # regex = ""
+        # for pattern in patterns:
+        #     if isinstance(pattern, Range):
+        #         regex += f"{pattern.start}-{pattern.stop}"
+        #     else:
+        #         regex += pattern
+        # super().__init__(f"[{regex}]")
+        super().__init__(Or(*patterns).regex)
 
 
 class NotSet(RegexPattern):
@@ -231,8 +233,10 @@ class Optional(RegexPattern):
     """
 
     def __init__(self, pattern: ValidPatternType, greedy: bool = True):
-        regex = Group(pattern, capturing=False) + "?" + ("" if greedy else "?")
-        super().__init__(regex.regex)
+        regex = (
+            self._ensure_precedence(pattern, 2).regex + "?" + ("" if greedy else "?")
+        )
+        super().__init__(regex)
 
 
 class Extension(RegexPattern):

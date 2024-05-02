@@ -11,6 +11,14 @@ import typing as t
 from regexfactory.pattern import RegexPattern, ValidPatternType
 
 
+class Concat(RegexPattern):
+    def __init__(self, *patterns: ValidPatternType) -> None:
+        super().__init__(
+            "".join(map(self._ensure_precedence_fn(0), patterns)),
+            _precedence=0,
+        )
+
+
 class Or(RegexPattern):
     """
     For matching multiple patterns.
@@ -28,23 +36,10 @@ class Or(RegexPattern):
 
     """
 
-    def __init__(
-        self,
-        *patterns: ValidPatternType,
-    ) -> None:
-        regex = "|".join(
-            map(
-                self.get_regex,
-                (
-                    Group(
-                        pattern,
-                        capturing=False,
-                    )
-                    for pattern in patterns
-                ),
-            )
+    def __init__(self, *patterns: ValidPatternType) -> None:
+        super().__init__(
+            "|".join(map(self._ensure_precedence_fn(-2), patterns)), _precedence=-2
         )
-        super().__init__((regex))
 
 
 class Range(RegexPattern):
@@ -110,13 +105,13 @@ class Set(RegexPattern):
 
     """
 
-    def __init__(self, *patterns: ValidPatternType) -> None:
+    def __init__(self, *patterns: Range | str) -> None:
         regex = ""
         for pattern in patterns:
             if isinstance(pattern, Range):
                 regex += f"{pattern.start}-{pattern.stop}"
             else:
-                regex += self.get_regex(pattern)
+                regex += pattern
         super().__init__(f"[{regex}]")
 
 
@@ -138,13 +133,13 @@ class NotSet(RegexPattern):
 
     """
 
-    def __init__(self, *patterns: ValidPatternType) -> None:
+    def __init__(self, *patterns: Range | str) -> None:
         regex = ""
         for pattern in patterns:
             if isinstance(pattern, Range):
                 regex += f"{pattern.start}-{pattern.stop}"
             else:
-                regex += self.get_regex(pattern)
+                regex += pattern
         super().__init__(f"[^{regex}]")
 
 
@@ -198,8 +193,15 @@ class Amount(RegexPattern):
             amount = f"{i},"
         else:
             amount = f"{i}"
-        regex = self.get_regex(pattern) + "{" + amount + "}" + ("" if greedy else "?")
-        super().__init__(regex)
+        regex = (
+            # TODO: should this be 1?
+            self._ensure_precedence(pattern, 2).regex
+            + "{"
+            + amount
+            + "}"
+            + ("" if greedy else "?")
+        )
+        super().__init__(regex, _precedence=1)
 
 
 class Multi(RegexPattern):
@@ -217,7 +219,8 @@ class Multi(RegexPattern):
         suffix = "*" if match_zero else "+"
         if greedy is False:
             suffix += "?"
-        regex = self.get_regex(Group(pattern, capturing=False))
+        # TODO: should this be 1?
+        regex = self._ensure_precedence(pattern, 2).regex
         super().__init__(regex + suffix)
 
 
@@ -227,17 +230,17 @@ class Optional(RegexPattern):
     Functions the same as :code:`Amount(pattern, 0, 1)`.
     """
 
-    def __init__(self, pattern: ValidPatternType, greedy: bool = True) -> None:
+    def __init__(self, pattern: ValidPatternType, greedy: bool = True):
         regex = Group(pattern, capturing=False) + "?" + ("" if greedy else "?")
-        super().__init__(regex)
+        super().__init__(regex.regex)
 
 
 class Extension(RegexPattern):
     """Base class for extension pattern classes."""
 
     def __init__(self, prefix: str, pattern: ValidPatternType):
-        regex = self.get_regex(pattern)
-        super().__init__(f"(?{prefix}{regex})")
+        regex = self.create(pattern).regex
+        super().__init__(f"(?{prefix}{regex})", _precedence=2)
 
 
 class NamedGroup(Extension):
@@ -444,6 +447,7 @@ class Group(Extension):
             RegexPattern.__init__(  # pylint: disable=non-parent-init-called
                 self,
                 f"({pattern})",
+                _precedence=2,
             )
 
 

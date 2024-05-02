@@ -20,15 +20,19 @@ ESCAPED_CHARACTERS = "()[]{}?*+-|^$\\.&~#"
 
 def join(*patterns: ValidPatternType) -> "RegexPattern":
     """Umbrella function for combining :class:`ValidPatternType`'s into a :class:`RegexPattern`."""
-    joined = RegexPattern("")
-    for pattern in patterns:
-        joined += RegexPattern(pattern)
-    return joined
+    from .patterns import Concat  # pylint: disable=import-outside-toplevel
+
+    return Concat(*patterns)
 
 
 def escape(string: str) -> "RegexPattern":
     """Escapes special characters in a string to use them without their special meanings."""
-    return RegexPattern(re.escape(string))
+
+    if len(string) == 0:
+        return RegexPattern("", _precedence=0)
+    if len(string) == 1:
+        return RegexPattern(re.escape(string), _precedence=10)
+    return RegexPattern(re.escape(string), _precedence=0)
 
 
 class RegexPattern:
@@ -40,13 +44,64 @@ class RegexPattern:
 
     #: The precedence of the pattern. Higher precedence patterns are evaluated first.
     # Precedence order here (https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html#tag_09_04_08)
-    precedence: int
 
-    def __init__(self, pattern: ValidPatternType, /, _precedence: int = 1) -> None:
-        self.regex = self.get_regex(pattern)
-        self.precedence = (
-            _precedence if not isinstance(pattern, RegexPattern) else pattern.precedence
-        )
+    # 5 Collation-related bracket symbols [==] [::] [..]
+    # 4 Escaped characters \<special character>
+    # 3 Bracket expression []
+    # 2 Grouping ()
+    # 1 Single-character-ERE duplication * + ? {m,n}
+    # 0 Concatenation
+    # -1 Anchoring ^ $
+    # -2 Alternation |
+
+    def __init__(self, regex: str, *, _precedence: int = -10) -> None:
+        self.regex = regex
+        if _precedence is not None:
+            self._precedence = _precedence
+
+    @staticmethod
+    def from_regex_str(regex: str) -> "RegexPattern":
+        # if regex is self escaping, then it just matches a literal string
+        if regex == re.escape(regex):
+            if len(regex) == 0:
+                return RegexPattern("", _precedence=0)
+            if len(regex) == 1:
+                return RegexPattern(regex, _precedence=10)
+            return RegexPattern(regex, _precedence=0)
+
+        # TODO: maybe validate this regex?
+        return RegexPattern(regex, _precedence=-10)
+
+    @staticmethod
+    def create(obj: ValidPatternType) -> "RegexPattern":
+        if isinstance(obj, RegexPattern):
+            return obj
+        if isinstance(obj, str):
+            return RegexPattern.from_regex_str(obj)
+        if isinstance(obj, re.Pattern):
+            return RegexPattern.from_regex_str(obj.pattern)
+        raise TypeError(f"Can't get regex from {obj.__class__.__qualname__} object.")
+
+    @staticmethod
+    def _ensure_precedence(
+        pattern: ValidPatternType, precedence: int
+    ) -> "RegexPattern":
+        from .patterns import Group  # pylint: disable=import-outside-toplevel
+
+        p = RegexPattern.create(pattern)
+
+        if p._precedence >= precedence:
+            return p
+
+        assert precedence <= 2
+        return Group(pattern, capturing=False)
+
+    @staticmethod
+    def _ensure_precedence_fn(precedence: int):
+        def inner(pattern: ValidPatternType):
+            return RegexPattern._ensure_precedence(pattern, precedence).regex
+
+        return inner
 
     def __repr__(self) -> str:
         raw_regex = f"{self.regex!r}".replace("\\\\", "\\")
@@ -57,49 +112,15 @@ class RegexPattern:
 
     def __add__(self, other: ValidPatternType) -> "RegexPattern":
         """Adds two :class:`ValidPatternType`'s together, into a :class:`RegexPattern`"""
-        from .patterns import Group  # pylint: disable=import-outside-toplevel
-
-        try:
-            other_pattern = (
-                RegexPattern(other) if not isinstance(other, RegexPattern) else other
-            )
-        except TypeError:
-            return NotImplemented
-
-        if self.precedence > other_pattern.precedence:
-            return RegexPattern(
-                self.regex + self.get_regex(Group(other_pattern, capturing=False))
-            )
-        if self.precedence < other_pattern.precedence:
-            return RegexPattern(
-                self.get_regex(Group(self, capturing=False)) + other_pattern.regex
-            )
-        return RegexPattern(self.regex + other_pattern.regex)
+        return join(self, other)
 
     def __radd__(self, other: ValidPatternType) -> "RegexPattern":
         """Adds two :class:`ValidPatternType`'s together, into a :class:`RegexPattern`"""
-        from .patterns import Group  # pylint: disable=import-outside-toplevel
-
-        try:
-            other_pattern = (
-                RegexPattern(other) if not isinstance(other, RegexPattern) else other
-            )
-        except TypeError:
-            return NotImplemented
-
-        if self.precedence > other_pattern.precedence:
-            return RegexPattern(
-                self.get_regex(Group(other_pattern, capturing=False)) + self.regex
-            )
-        if self.precedence < other_pattern.precedence:
-            return RegexPattern(
-                other_pattern.regex + self.get_regex(Group(self, capturing=False))
-            )
-        return RegexPattern(other_pattern.regex + self.regex)
+        return join(other, self)
 
     def __mul__(self, coefficient: int) -> "RegexPattern":
-        """Treats :class:`RegexPattern` as a string and multiplies it by an integer."""
-        return RegexPattern(self.regex * coefficient)
+        """matches exactly coefficient counts of self"""
+        return join(*([self.regex] * coefficient))
 
     def __eq__(self, other: Any) -> bool:
         """
@@ -107,29 +128,26 @@ class RegexPattern:
         Otherwise return false.
         """
         if isinstance(other, (str, re.Pattern, RegexPattern)):
-            return (
-                self.regex == RegexPattern(other).regex
-                and self.precedence == RegexPattern(other).precedence
-            )
+            return self.regex == self.create(other).regex
         return super().__eq__(other)
 
     def __hash__(self) -> int:
         """Hashes the regex string."""
         return hash(self.regex)
 
-    @staticmethod
-    def get_regex(obj: ValidPatternType, /) -> str:
-        """
-        Extracts the regex content from :class:`RegexPattern` or :class:`re.Pattern` objects
-        else return the input :class:`str`.
-        """
-        if isinstance(obj, RegexPattern):
-            return obj.regex
-        if isinstance(obj, str):
-            return obj
-        if isinstance(obj, re.Pattern):
-            return obj.pattern
-        raise TypeError(f"Can't get regex from {obj.__class__.__qualname__} object.")
+    # @staticmethod
+    # def get_regex(obj: ValidPatternType, /) -> str:
+    #     """
+    #     Extracts the regex content from :class:`RegexPattern` or :class:`re.Pattern` objects
+    #     else return the input :class:`str`.
+    #     """
+    #     if isinstance(obj, RegexPattern):
+    #         return obj.regex
+    #     if isinstance(obj, str):
+    #         return obj
+    #     if isinstance(obj, re.Pattern):
+    #         return obj.pattern
+    #     raise TypeError(f"Can't get regex from {obj.__class__.__qualname__} object.")
 
     def compile(
         self,

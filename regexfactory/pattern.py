@@ -7,8 +7,8 @@ Module for the :class:`RegexPattern` class.
 
 # pylint: disable=cyclic-import
 
-
 import re
+import sys
 from typing import Any, Iterator, List, Optional, Tuple, Union
 
 #:
@@ -55,6 +55,13 @@ class RegexPattern:
     # -2 Alternation |
 
     def __init__(self, regex: str, *, _precedence: int = -10) -> None:
+        if type(self) is RegexPattern:
+            # https://stackoverflow.com/questions/19630994/how-to-check-if-a-string-is-a-valid-regex-in-python
+            try:
+                re.compile(regex)
+            except re.error:
+                raise ValueError(f"invalid regex {regex}")
+
         self.regex = regex
         if _precedence is not None:
             self._precedence = _precedence
@@ -237,7 +244,7 @@ class RegexPattern:
         content: str,
         /,
         pos: int = 0,
-        endpos: int = 0,
+        endpos: int = sys.maxsize,
         *,
         flags: int = 0,
     ) -> Optional[re.Match]:

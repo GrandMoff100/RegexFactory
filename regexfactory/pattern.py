@@ -55,16 +55,8 @@ class RegexPattern:
     # -2 Alternation |
 
     def __init__(self, regex: str, *, _precedence: int = -10) -> None:
-        if type(self) is RegexPattern:
-            # https://stackoverflow.com/questions/19630994/how-to-check-if-a-string-is-a-valid-regex-in-python
-            try:
-                re.compile(regex)
-            except re.error:
-                raise ValueError(f"invalid regex {regex}")
-
         self.regex = regex
-        if _precedence is not None:
-            self._precedence = _precedence
+        self._precedence = _precedence
 
     @staticmethod
     def from_regex_str(regex: str) -> "RegexPattern":
@@ -76,7 +68,11 @@ class RegexPattern:
                 return RegexPattern(regex, _precedence=10)
             return RegexPattern(regex, _precedence=0)
 
-        # TODO: maybe validate this regex?
+        # https://stackoverflow.com/questions/19630994/how-to-check-if-a-string-is-a-valid-regex-in-python
+        try:
+            re.compile(regex)
+        except re.error:
+            raise ValueError(f"invalid regex {regex}")
         return RegexPattern(regex, _precedence=-10)
 
     @staticmethod
@@ -127,7 +123,15 @@ class RegexPattern:
 
     def __mul__(self, coefficient: int) -> "RegexPattern":
         """matches exactly coefficient counts of self"""
-        return join(*([self.regex] * coefficient))
+        from .patterns import Amount
+
+        return Amount(self, coefficient)
+
+    def __or__(self, other) -> "RegexPattern":
+        """matches exactly coefficient counts of self"""
+        from .sets import Set
+
+        return Set(self, other)  # type: ignore
 
     def __eq__(self, other: Any) -> bool:
         """
@@ -141,20 +145,6 @@ class RegexPattern:
     def __hash__(self) -> int:
         """Hashes the regex string."""
         return hash(self.regex)
-
-    # @staticmethod
-    # def get_regex(obj: ValidPatternType, /) -> str:
-    #     """
-    #     Extracts the regex content from :class:`RegexPattern` or :class:`re.Pattern` objects
-    #     else return the input :class:`str`.
-    #     """
-    #     if isinstance(obj, RegexPattern):
-    #         return obj.regex
-    #     if isinstance(obj, str):
-    #         return obj
-    #     if isinstance(obj, re.Pattern):
-    #         return obj.pattern
-    #     raise TypeError(f"Can't get regex from {obj.__class__.__qualname__} object.")
 
     def compile(
         self,

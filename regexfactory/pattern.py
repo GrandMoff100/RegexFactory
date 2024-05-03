@@ -127,11 +127,17 @@ class RegexPattern:
 
         return Amount(self, coefficient)
 
-    def __or__(self, other) -> "RegexPattern":
-        """matches exactly coefficient counts of self"""
+    def __or__(self, other):
+        """equivalent to Set"""
         from .sets import Set
 
         return Set(self, other)  # type: ignore
+
+    def __ror__(self, other):
+        """equivalent to Set"""
+        from .sets import Set
+
+        return Set(other, self)  # type: ignore
 
     def __eq__(self, other: Any) -> bool:
         """

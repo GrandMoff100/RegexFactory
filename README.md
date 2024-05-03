@@ -71,23 +71,18 @@ Or what if you want to match urls in html content?
 ```python
 from regexfactory import *
 
-
 protocol = Amount(Range("a", "z"), 1, or_more=True)
-host = Amount(Set(WORD, DIGIT, '.'), 1, or_more=True)
-port = Optional(IfBehind(":") + Multi(DIGIT))
+host = Amount(WORD | DIGIT | ".", 1, or_more=True)
+port = Optional(":" + Multi(DIGIT))
 path = Multi(
-    RegexPattern('/') + Multi(
-        NotSet('/', '#', '?', '&', WHITESPACE),
-        match_zero=True
-    ),
-    match_zero=True
+    "/" + Multi(NotSet("/", "#", "?", "&", WHITESPACE), match_zero=True),
+    match_zero=True,
 )
-patt = protocol + RegexPattern("://") + host + port + path
-
+patt = protocol + "://" + host + port + path
 
 
 sentence = "This is a cool url, https://github.com/GrandMoff100/RegexFactory/ "
-print(patt)
+print(patt.regex)
 
 print(patt.search(sentence))
 ```

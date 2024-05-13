@@ -2,12 +2,20 @@ import itertools
 import re
 import typing as t
 
+from regexfactory import pattern as p
 from regexfactory.pattern import RegexPattern
 from regexfactory.patterns import IfNotAhead
 
-CharSet = t.Union[str, "Set", "CharClass", "Range"]
+CharSet = t.Union[str, "Set", "CharLiteral", "CharClass", "Range"]
 
-NEVER = IfNotAhead("")
+ALWAYS = RegexPattern.from_regex_str("")
+ALWAYS._desc = "ALWAYS"
+NEVER = IfNotAhead(ALWAYS)
+NEVER._desc = "NEVER"
+
+
+def _is_charset(c: RegexPattern) -> t.TypeGuard[CharSet]:
+    return isinstance(c, (Set, CharLiteral, CharClass, Range))
 
 
 def _charset_normalize(c: CharSet) -> list[str]:
@@ -17,10 +25,21 @@ def _charset_normalize(c: CharSet) -> list[str]:
         return [c._regex_inner]
     if isinstance(c, Set):
         return c.members
+    if isinstance(c, CharLiteral):
+        return [c.regex]
     if isinstance(c, CharClass):
         return [c.regex]
 
     raise TypeError(f"invalid charset: {c!r}")
+
+
+class CharLiteral(RegexPattern):
+    """
+    matches a single char literal like "A"
+    """
+
+    def __init__(self, c: str, _precedence=10):
+        super().__init__(c, _precedence=_precedence)
 
 
 class CharClass(RegexPattern):
@@ -29,7 +48,8 @@ class CharClass(RegexPattern):
     for example DIGIT or WORD
     """
 
-    pass
+    def __init__(self, c: str, _precedence=10):
+        super().__init__(c, _precedence=_precedence)
 
 
 class Range(RegexPattern):
@@ -66,7 +86,7 @@ class Range(RegexPattern):
         self.stop = stop
 
         self._regex_inner = f"{re.escape(start)}-{re.escape(stop)}"
-        super().__init__(f"[{self._regex_inner}]")
+        super().__init__(f"[{self._regex_inner}]", _precedence=3)
 
 
 class Set(RegexPattern):
@@ -110,13 +130,13 @@ class Set(RegexPattern):
             itertools.chain(*(_charset_normalize(arg) for arg in charsets))
         )
         if len(self.members) == 0:
-            regex = str(NEVER)
-        elif len(self.members) == 1:
-            regex = self.members[0]
+            regex = NEVER.regex
+            prec = NEVER._precedence
         else:
             regex = "[" + "".join(self.members) + "]"
+            prec = 3
 
-        super().__init__(regex, _precedence=3)
+        super().__init__(regex, _precedence=prec)
 
 
 class NotSet(RegexPattern):
@@ -144,8 +164,12 @@ class NotSet(RegexPattern):
             itertools.chain(*(_charset_normalize(arg) for arg in charsets))
         )
         if len(self.members) == 0:
-            regex = ""
+            from .chars import NOTWHITESPACE, WHITESPACE
+
+            regex = (WHITESPACE | NOTWHITESPACE).regex
+            prec = 3
         else:
             regex = "[^" + "".join(self.members) + "]"
+            prec = 3
 
-        super().__init__(regex, _precedence=3)
+        super().__init__(regex, _precedence=prec)

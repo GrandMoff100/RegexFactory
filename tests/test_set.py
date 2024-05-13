@@ -1,16 +1,46 @@
 import re
 
-import pytest
 from hypothesis import given
 from hypothesis import strategies as st
-from strategies import non_escape_char
+from utils import check_one
 
-from regexfactory import Set
+import regexfactory as r
+from regexfactory import IfNotAhead, NotSet, Range, Set, or_, pattern
+
+pattern._enable_desc = True
 
 
-@pytest.mark.patterns
-@given(st.lists(elements=non_escape_char, min_size=1))
-def test_set(chars: list):
-    actual = Set(*chars)
-    for value in chars:
-        assert isinstance(actual.match(value), re.Match)
+@given(st.data())
+def test_range(data):
+    check_one(
+        Range("a", "e"),
+        Set("abcde"),
+        data,
+    )
+
+
+@given(st.text(), st.data())
+def test_set(chars, data):
+    check_one(
+        Set(*chars),
+        or_(*(re.escape(x) for x in chars)),
+        data,
+    )
+
+
+@given(st.text(), st.data())
+def test_notset(chars, data):
+    check_one(
+        NotSet(*chars),
+        IfNotAhead(Set(*chars)) + NotSet(),
+        data,
+    )
+
+
+@given(st.data())
+def test_any(data):
+    check_one(
+        or_(r.ANY, r.WHITESPACE),
+        NotSet(),
+        data,
+    )

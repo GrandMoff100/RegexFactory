@@ -1,18 +1,23 @@
-import pytest
-from hypothesis import example, given
+from hypothesis import given
 from hypothesis import strategies as st
-from strategies import non_escaped_text
+from strategies import pat_generic
+from utils import check_one
 
-from regexfactory.pattern import join
+from regexfactory import escape, join, pattern
+
+pattern._enable_desc = True
 
 
-@pytest.mark.pattern
-@given(st.lists(elements=non_escaped_text, min_size=1, max_size=10, unique=True))
-@example(words=["0", "1"])
-def test_join(words: list):
-    """
-    Tests to capture that the join function concatenates the expressions and
-        each word in the list is found in the larger regex.
-    """
-    joined_regex = join(*words)
-    assert joined_regex.regex == "".join(words)
+@given(pat_generic, pat_generic, st.data())
+def test_operator_add(x, y, data):
+    check_one(x + y, join(x, y), data)
+
+
+@given(pat_generic, pat_generic, pat_generic, st.data())
+def test_join_assoc(x, y, z, data):
+    check_one(x + (y + z), (x + y) + z, data)
+
+
+@given(st.text(), st.text(), st.data())
+def test_sum_escape(x, y, data):
+    check_one(escape(x + y), escape(x) + escape(y), data)

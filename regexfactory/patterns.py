@@ -87,6 +87,7 @@ class Amount(RegexPattern):
         greedy: bool = True,
     ) -> None:
         if j is not None:
+            assert not or_more
             amount = f"{i},{j}"
         elif or_more:
             amount = f"{i},"

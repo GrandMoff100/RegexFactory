@@ -59,12 +59,15 @@ def _pat_extend(draw: st.DrawFn, children: st.SearchStrategy[RegexPattern]):
 
     if draw(st.booleans()):
         return amount(
-            c, draw(st.integers(0, 4)), None, draw(st.booleans()), draw(st.booleans())
+            c,
+            draw(st.integers(0, 4)),
+            or_more=draw(st.booleans()),
+            greedy=draw(st.booleans()),
         )
 
     a = draw(st.integers(0, 2))
     b = draw(st.integers(0, 2))
-    return amount(c, a, a + b, False, draw(st.booleans()))
+    return amount(c, a, a + b, or_more=False, greedy=draw(st.booleans()))
 
 
 pat_generic: st.SearchStrategy[RegexPattern] = st.recursive(pat_base(), _pat_extend)

@@ -9,7 +9,7 @@ Module for the :class:`RegexPattern` class.
 
 import re
 import sys
-from typing import Any, Iterator, List, Optional, Tuple, Union
+from typing import Any, Iterator, List, Literal, Optional, Tuple, Union, overload
 
 #:
 ValidPatternType = Union[re.Pattern, str, "RegexPattern"]
@@ -132,9 +132,8 @@ class RegexPattern:
 
     def __mul__(self, coefficient: int) -> "RegexPattern":
         """matches exactly coefficient counts of self"""
-        from .patterns import Amount
 
-        return Amount(self, coefficient)
+        return amount(self, coefficient)
 
     def __or__(self, other: ValidPatternType):
         return or_(self, other)
@@ -289,7 +288,6 @@ def _escape(string: str) -> RegexPattern:
 
 
 def or_(*args: ValidPatternType) -> RegexPattern:
-    """equivalent to Set"""
     from .patterns import Or
     from .sets import NEVER, Set, _is_charset
 
@@ -320,9 +318,24 @@ def amount(
     pattern: ValidPatternType,
     i: int,
     j: Optional[int] = None,
+    *,
     or_more: bool = False,
     greedy: bool = True,
 ) -> RegexPattern:
+    """
+    (1) amount(pattern, i, j):
+        matches between i and j, inclusive, copies of pattern
+    (2) amount(pattern, i):
+        matches exactly i copies of pattern
+    (3) amount(pattern, i, or_more = True):
+        matches at least i copies of pattern
+
+    if greedy is True, match as long as possible; othewise match as short as possible.
+    backtracking is always enabled, regardless of the setting of greedy.
+    """
+
+    if j is not None and or_more:
+        raise ValueError()
 
     from .patterns import Amount
 
@@ -349,6 +362,13 @@ def _amount(
     pattern: RegexPattern, i: int, j: Optional[int], or_more: bool, greedy: bool
 ) -> RegexPattern:
     from .patterns import Amount, Multi, Optional
+    from .sets import ALWAYS
+
+    if j is None and not or_more:
+        j = i
+
+    if i == 0 and j == 0:
+        return ALWAYS
 
     if i == 1 and j == 1:
         return pattern
@@ -361,6 +381,9 @@ def _amount(
 
     if i == 1 and j is None and or_more:
         return Multi(pattern, False, greedy)
+
+    if i == j:
+        j = None
 
     return Amount(pattern, i, j, or_more, greedy)
 

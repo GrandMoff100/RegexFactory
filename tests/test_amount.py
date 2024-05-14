@@ -15,9 +15,18 @@ def test_operator_mul(x, n, data):
 
 
 @given(pat_generic, st.integers(0, 4), st.booleans(), st.data())
-def test_amount_fixed(x, n, greedy, data):
+def test_amount_fixed1(x, n, greedy, data):
     check_one(
         amount(x, n, n, greedy=greedy),
+        x * n,
+        data,
+    )
+
+
+@given(pat_generic, st.integers(0, 4), st.booleans(), st.data())
+def test_amount_fixed2(x, n, greedy, data):
+    check_one(
+        amount(x, n, greedy=greedy),
         x * n,
         data,
     )

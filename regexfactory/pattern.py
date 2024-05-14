@@ -73,8 +73,8 @@ class RegexPattern:
         # https://stackoverflow.com/questions/19630994/how-to-check-if-a-string-is-a-valid-regex-in-python
         try:
             re.compile(regex)
-        except re.error:
-            raise ValueError(f"invalid regex {regex}")
+        except re.error as e:
+            raise ValueError(f"invalid regex {regex}") from e
         ans = RegexPattern(regex, _precedence=-10)
         if _enable_debug:
             ans._reference_regex = regex

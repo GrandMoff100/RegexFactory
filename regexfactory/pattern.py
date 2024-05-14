@@ -61,8 +61,14 @@ class RegexPattern:
     @staticmethod
     def from_regex_str(regex: str) -> "RegexPattern":
         """create a RegexPattern from a regex. raises ValueError if regex is invalid."""
+
+        # attempt to treat regex as a literal string
         if regex == re.escape(regex):
             return escape(regex)
+        parts = regex.split(r"\\\\")
+        guess = "\\".join(x.replace("\\", "") for x in parts)
+        if regex == re.escape(guess):
+            return escape(guess)
 
         # https://stackoverflow.com/questions/19630994/how-to-check-if-a-string-is-a-valid-regex-in-python
         try:

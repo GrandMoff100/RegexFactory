@@ -3,9 +3,7 @@ from hypothesis import strategies as st
 from strategies import pat_generic
 from utils import check_one
 
-from regexfactory import escape, join, pattern
-
-pattern._enable_desc = True
+from regexfactory import escape, join
 
 
 @given(pat_generic, pat_generic, st.data())

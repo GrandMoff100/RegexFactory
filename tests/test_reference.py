@@ -6,7 +6,6 @@ from utils import check_regex
 from regexfactory import RegexPattern, pattern
 
 pattern._enable_debug = True
-pattern._enable_desc = True
 
 
 # checks that ._reference_regex behaves the same as .regex

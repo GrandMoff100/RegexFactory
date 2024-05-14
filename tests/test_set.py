@@ -5,9 +5,7 @@ from hypothesis import strategies as st
 from utils import check_one
 
 import regexfactory as r
-from regexfactory import IfNotAhead, NotSet, Range, Set, or_, pattern
-
-pattern._enable_desc = True
+from regexfactory import IfNotAhead, NotSet, Range, Set, or_
 
 
 @given(st.data())

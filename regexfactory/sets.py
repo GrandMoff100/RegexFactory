@@ -166,8 +166,9 @@ class NotSet(RegexPattern):
         if len(self.members) == 0:
             from .chars import NOTWHITESPACE, WHITESPACE
 
-            regex = (WHITESPACE | NOTWHITESPACE).regex
-            prec = 3
+            any_sing = WHITESPACE | NOTWHITESPACE
+            regex = any_sing.regex
+            prec = any_sing._precedence
         else:
             regex = "[^" + "".join(self.members) + "]"
             prec = 3

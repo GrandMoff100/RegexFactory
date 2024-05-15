@@ -279,7 +279,9 @@ def escape(string: str) -> RegexPattern:
 
 def _escape(string: str) -> RegexPattern:
     if len(string) == 0:
-        return RegexPattern("", _precedence=0)
+        from .sets import EMPTY
+
+        return EMPTY
     if len(string) == 1:
         from .sets import CharLiteral  # pylint: disable=import-outside-toplevel
 
@@ -362,13 +364,13 @@ def _amount(
     pattern: RegexPattern, i: int, j: Optional[int], or_more: bool, greedy: bool
 ) -> RegexPattern:
     from .patterns import Amount, Multi, Optional
-    from .sets import ALWAYS
+    from .sets import EMPTY
 
     if j is None and not or_more:
         j = i
 
     if i == 0 and j == 0:
-        return ALWAYS
+        return EMPTY
 
     if i == 1 and j == 1:
         return pattern

@@ -2,15 +2,17 @@ import itertools
 import re
 import typing as t
 
-from regexfactory import pattern as p
 from regexfactory.pattern import RegexPattern
 from regexfactory.patterns import IfNotAhead
 
 CharSet = t.Union[str, "Set", "CharLiteral", "CharClass", "Range"]
 
-ALWAYS = RegexPattern.from_regex_str("")
-ALWAYS._desc = "ALWAYS"
-NEVER = IfNotAhead(ALWAYS)
+# matches nothing, always succeeds
+EMPTY = RegexPattern("", _precedence=0)
+EMPTY._desc = "EMPTY"
+
+# always fails
+NEVER = IfNotAhead(EMPTY)
 NEVER._desc = "NEVER"
 
 

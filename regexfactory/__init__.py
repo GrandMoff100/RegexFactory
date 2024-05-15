@@ -52,6 +52,6 @@ from .patterns import (
     Optional,
     Or,
 )
-from .sets import ALWAYS, NEVER, NotSet, Range, Set
+from .sets import EMPTY, NEVER, NotSet, Range, Set
 
 __version__ = "1.0.1"

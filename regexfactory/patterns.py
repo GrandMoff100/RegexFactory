@@ -12,6 +12,10 @@ from regexfactory.pattern import RegexPattern, ValidPatternType
 
 
 class Concat(RegexPattern):
+    """
+    a concatation of patterns.
+    """
+
     def __init__(self, *patterns: ValidPatternType) -> None:
         super().__init__(
             "".join(map(self._ensure_precedence_fn(0), patterns)),
@@ -78,6 +82,7 @@ class Amount(RegexPattern):
 
     """
 
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         pattern: ValidPatternType,
@@ -94,7 +99,6 @@ class Amount(RegexPattern):
         else:
             amount = f"{i}"
         regex = (
-            # TODO: should this be 1?
             self._ensure_precedence(pattern, 2).regex
             + "{"
             + amount
@@ -119,7 +123,6 @@ class Multi(RegexPattern):
         suffix = "*" if match_zero else "+"
         if greedy is False:
             suffix += "?"
-        # TODO: should this be 1?
         regex = self._ensure_precedence(pattern, 2).regex
         super().__init__(regex + suffix, _precedence=1)
 

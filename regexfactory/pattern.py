@@ -9,7 +9,7 @@ Module for the :class:`RegexPattern` class.
 
 import re
 import sys
-from typing import Any, Iterator, List, Literal, Optional, Tuple, Union, overload
+from typing import Any, Iterator, List, Optional, Tuple, Union
 
 #:
 ValidPatternType = Union[re.Pattern, str, "RegexPattern"]
@@ -84,6 +84,11 @@ class RegexPattern:
 
     @staticmethod
     def create(obj: ValidPatternType) -> "RegexPattern":
+        """
+        creats a RegexPattern from a str or RegexPattern.
+        if obj is a RegexPattern, its returned.
+        otherwise obj is treated as a regex.
+        """
         if isinstance(obj, RegexPattern):
             return obj
         if isinstance(obj, str):
@@ -96,7 +101,7 @@ class RegexPattern:
     def _ensure_precedence(
         pattern: ValidPatternType, precedence: int
     ) -> "RegexPattern":
-        from .patterns import Group  # pylint: disable=import-outside-toplevel
+        from .patterns import Group
 
         p = RegexPattern.create(pattern)
 
@@ -252,7 +257,7 @@ class RegexPattern:
 
 def join(*patterns: ValidPatternType) -> RegexPattern:
     """Umbrella function for combining :class:`ValidPatternType`'s into a :class:`RegexPattern`."""
-    from .patterns import Concat  # pylint: disable=import-outside-toplevel
+    from .patterns import Concat
 
     ps = [RegexPattern.create(p) for p in patterns]
     ans = Concat(*ps)
@@ -283,13 +288,16 @@ def _escape(string: str) -> RegexPattern:
 
         return EMPTY
     if len(string) == 1:
-        from .sets import CharLiteral  # pylint: disable=import-outside-toplevel
+        from .sets import CharLiteral
 
         return CharLiteral(re.escape(string))
     return RegexPattern(re.escape(string), _precedence=0)
 
 
 def or_(*args: ValidPatternType) -> RegexPattern:
+    """
+    matches any one of args. args is tried from left to right.
+    """
     from .patterns import Or
     from .sets import NEVER, Set, _is_charset
 
@@ -363,7 +371,8 @@ def amount(
 def _amount(
     pattern: RegexPattern, i: int, j: Optional[int], or_more: bool, greedy: bool
 ) -> RegexPattern:
-    from .patterns import Amount, Multi, Optional
+    from .patterns import Amount, Multi
+    from .patterns import Optional as POpt
     from .sets import EMPTY
 
     if j is None and not or_more:
@@ -376,7 +385,7 @@ def _amount(
         return pattern
 
     if i == 0 and j == 1:
-        return Optional(pattern, greedy)
+        return POpt(pattern, greedy)
 
     if i == 0 and j is None and or_more:
         return Multi(pattern, True, greedy)
@@ -395,10 +404,17 @@ def multi(
     match_zero: bool = False,
     greedy: bool = True,
 ):
+    """
+    maches one or more counts of pattern.
+    if match_zero=True, match zero or more instead.
+    """
     if match_zero:
         return amount(pattern, 0, or_more=True, greedy=greedy)
     return amount(pattern, 1, or_more=True, greedy=greedy)
 
 
 def optional(pattern: ValidPatternType, greedy: bool = True):
+    """
+    maches zero or one counts of pattern.
+    """
     return amount(pattern, 0, 1, greedy=greedy)

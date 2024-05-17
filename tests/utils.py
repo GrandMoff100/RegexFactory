@@ -9,7 +9,7 @@ def check_regex(p1: ValidPatternType, p2: ValidPatternType, v: str):
     r1 = p1 if isinstance(p1, str) else RegexPattern.create(p1).regex
     r2 = p2 if isinstance(p2, str) else RegexPattern.create(p2).regex
 
-    """checks that r1 and r2 does the same on v"""
+    # checks that r1 and r2 does the same on v
     if r1 == r2:
         return
 

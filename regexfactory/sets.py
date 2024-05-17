@@ -1,9 +1,23 @@
+"""
+Charset Subclasses
+************************
+
+Charset is any pattern that matches exactly single character, out of a set.
+
+for example, :code:`'a'`, :code:`'[ab]'` or :code:`r'[a\\w]'`
+
+Charset gets special support. for example
+:code:`or_("a", "b")` returns `<RegexPattern '[ab]'>`
+"""
+
+# pylint: disable=cyclic-import
+
 import itertools
 import re
 import typing as t
 
-from regexfactory.pattern import RegexPattern
-from regexfactory.patterns import IfNotAhead
+from .pattern import RegexPattern
+from .patterns import IfNotAhead
 
 CharSet = t.Union[str, "Set", "CharLiteral", "CharClass", "Range"]
 

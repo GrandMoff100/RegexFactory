@@ -4,7 +4,7 @@ from hypothesis import strategies as st
 from strategies import pat_generic
 from utils import check_one, check_regex
 
-from regexfactory import RegexPattern, amount, escape, join, multi, optional, or_
+from regexfactory import RegexPattern, escape, or_
 
 
 @given(pat_generic, pat_generic, st.data())

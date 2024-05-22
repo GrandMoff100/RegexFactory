@@ -140,6 +140,26 @@ class RegexPattern:
 
         return amount(self, coefficient)
 
+    def __getitem__(self, arg: slice) -> "RegexPattern":
+        if isinstance(arg, slice):
+            assert arg.step is None
+            if isinstance(arg.start, int):
+                start = arg.start
+            else:
+                assert arg.start is None
+                start = 0
+            if isinstance(arg.stop, int):
+                end = arg.stop
+                or_more = False
+            else:
+                assert arg.stop is None
+                end = None
+                or_more = True
+
+            return amount(self, start, end, or_more=or_more)
+
+        raise ValueError(f"{arg}")
+
     def __or__(self, other: ValidPatternType):
         return or_(self, other)
 

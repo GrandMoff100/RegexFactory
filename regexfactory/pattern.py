@@ -125,7 +125,7 @@ class RegexPattern:
         return f"<RegexPattern {raw_regex}>"
 
     def __str__(self) -> str:
-        return self.regex
+        return self._ensure_precedence(self, 2).regex
 
     def __add__(self, other: ValidPatternType) -> "RegexPattern":
         """Adds two :class:`ValidPatternType`'s together, into a :class:`RegexPattern`"""

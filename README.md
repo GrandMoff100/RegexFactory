@@ -9,20 +9,18 @@ Dynamically construct python regex patterns.
 Say you want a regex pattern to match the initials of someones name.
 
 ```python
-import re
-from regexfactory import Amount, Range
+from regexfactory import *
 
+pattern = amount(Range("A", "Z"), 2, 3)
 
-pattern = Amount(Range("A", "Z"), 2, 3)
+matches = pattern.findall("My initials are BDP. Valorie's are VO")
 
-matches = pattern.findall(
-    "My initials are BDP. Valorie's are VO"
-)
-
+print(pattern.regex)
 print(matches)
 ```
 
-```bash
+```
+[A-Z]{2,3}
 ['BDP', 'VO']
 ```
 
@@ -31,36 +29,24 @@ print(matches)
 Or how matching both uppercase and lowercase hex strings in a sentence.
 
 ```python
-import re
 from regexfactory import *
 
-pattern = Optional("#") + Or(
-    Amount(
-        Set(
-            Range("0", "9"),
-            Range("a", "f")
-        ),
-        6
-    ),
-    Amount(
-        Set(
-            Range("0", "9"),
-            Range("A", "F")
-        ),
-        6
-    ),
-
+pattern = optional("#") + or_(
+    (Range("0", "9") | Range("a", "f")) * 6,
+    (Range("0", "9") | Range("A", "F")) * 6,
 )
 
 sentence = """
 My favorite color is #000000. I also like 5fb8a0. My second favorite color is #FF21FF.
 """
 
+print(pattern.regex)
 matches = pattern.findall(sentence)
 print(matches)
 ```
 
-```bash
+```
+(?:#)?(?:[0-9a-f]{6}|[0-9A-F]{6})
 ['#000000', '5fb8a0', '#FF21FF']
 ```
 
@@ -71,30 +57,25 @@ Or what if you want to match urls in html content?
 ```python
 from regexfactory import *
 
-
-protocol = Amount(Range("a", "z"), 1, or_more=True)
-host = Amount(Set(WORD, DIGIT, '.'), 1, or_more=True)
-port = Optional(IfBehind(":") + Multi(DIGIT))
-path = Multi(
-    RegexPattern('/') + Multi(
-        NotSet('/', '#', '?', '&', WHITESPACE),
-        match_zero=True
-    ),
-    match_zero=True
+protocol = amount(Range("a", "z"), 1, or_more=True)
+host = amount(WORD | DIGIT | r"\.", 1, or_more=True)
+port = optional(":" + multi(DIGIT))
+path = multi(
+    "/" + multi(NotSet("/", "#", "?", "&", WHITESPACE), match_zero=True),
+    match_zero=True,
 )
-patt = protocol + RegexPattern("://") + host + port + path
-
+patt = protocol + "://" + host + port + path
 
 
 sentence = "This is a cool url, https://github.com/GrandMoff100/RegexFactory/ "
-print(patt)
+print(patt.regex)
 
 print(patt.search(sentence))
 ```
 
-```bash
-[a-z]{1,}://[\w\d.]{1,}(?:\d{1,})?(/([^/#?&\s]{0,})){0,}
-<re.Match object; span=(15, 51), match='https://github.com/GrandMoff100/RegexFactory/'>
+```
+[a-z]+://[\w\d\.]+(?::\d+)?(?:/[^/\#\?\&\s]*)*
+<re.Match object; span=(20, 65), match='https://github.com/GrandMoff100/RegexFactory/'>
 ```
 
 ## The Pitch

@@ -11,6 +11,18 @@ import typing as t
 from regexfactory.pattern import RegexPattern, ValidPatternType
 
 
+class Concat(RegexPattern):
+    """
+    a concatation of patterns.
+    """
+
+    def __init__(self, *patterns: ValidPatternType) -> None:
+        super().__init__(
+            "".join(map(self._ensure_precedence_fn(0), patterns)),
+            _precedence=0,
+        )
+
+
 class Or(RegexPattern):
     """
     For matching multiple patterns.
@@ -28,124 +40,10 @@ class Or(RegexPattern):
 
     """
 
-    def __init__(
-        self,
-        *patterns: ValidPatternType,
-    ) -> None:
-        regex = "|".join(
-            map(
-                self.get_regex,
-                (
-                    Group(
-                        pattern,
-                        capturing=False,
-                    )
-                    for pattern in patterns
-                ),
-            )
+    def __init__(self, *patterns: ValidPatternType) -> None:
+        super().__init__(
+            "|".join(map(self._ensure_precedence_fn(-2), patterns)), _precedence=-2
         )
-        super().__init__((regex))
-
-
-class Range(RegexPattern):
-    """
-    For matching characters between two character indices
-    (using the Unicode numbers of the input characters.)
-    You can find use :func:`chr` and :func:`ord`
-    to translate characters their Unicode numbers and back again.
-    For example, :code:`chr(97)` returns the string :code:`'a'`,
-    while :code:`chr(8364)` returns the string :code:`'€'`
-    Thus, matching characters between :code:`'a'` and :code:`'z'`
-    is really checking whether a characters unicode number
-    is between :code:`ord('a')` and :code:`ord('z')`
-
-    .. exec_code::
-
-        from regexfactory import Range, Or
-
-        patt = Or("Bob", Range("a", "z"))
-
-        print(patt.findall("my job is working for Bob"))
-
-    """
-
-    def __init__(self, start: str, stop: str) -> None:
-        self.start = start
-        self.stop = stop
-        regex = f"[{start}-{stop}]"
-        super().__init__(regex)
-
-
-class Set(RegexPattern):
-    """
-    For matching a single character from a list of characters.
-    Keep in mind special characters like :code:`+` and :code:`.`
-    lose their meanings inside a set/list,
-    so need to escape them here to use them.
-
-    In practice, :code:`Set("a", ".", "z")`
-    functions the same as :code:`Or("a", ".", "z")`
-    The difference being that :class:`Or` accepts :class:`RegexPattern` 's
-    and :class:`Set` accepts characters only.
-    Special characters do **NOT** lose their special meaings inside an :class:`Or` though.
-    The other big difference is performance,
-    :class:`Or` is a lot slower than :class:`Set`.
-
-    .. exec_code::
-
-        import time
-        from regexfactory import Or, Set
-
-        start_set = time.time()
-        print(patt := Set(*"a.z").compile())
-        print("Set took", time.time() - start_set, "seconds to compile")
-        print("And the resulting match is", patt.match("b"))
-
-        print()
-
-        start_or = time.time()
-        print(patt := Or(*"a.z").compile())
-        print("Or took", time.time() - start_or, "seconds to compile")
-        print("And the resulting match is", patt.match("b"))
-
-    """
-
-    def __init__(self, *patterns: ValidPatternType) -> None:
-        regex = ""
-        for pattern in patterns:
-            if isinstance(pattern, Range):
-                regex += f"{pattern.start}-{pattern.stop}"
-            else:
-                regex += self.get_regex(pattern)
-        super().__init__(f"[{regex}]")
-
-
-class NotSet(RegexPattern):
-    """
-    For matching a character that is **NOT** in a list of characters.
-    Keep in mind special characters lose their special meanings inside :class:`NotSet`'s as well.
-
-    .. exec_code::
-
-        from regexfactory import NotSet, Set
-
-        not_abc = NotSet(*"abc")
-
-        is_abc = Set(*"abc")
-
-        print(not_abc.match("x"))
-        print(is_abc.match("x"))
-
-    """
-
-    def __init__(self, *patterns: ValidPatternType) -> None:
-        regex = ""
-        for pattern in patterns:
-            if isinstance(pattern, Range):
-                regex += f"{pattern.start}-{pattern.stop}"
-            else:
-                regex += self.get_regex(pattern)
-        super().__init__(f"[^{regex}]")
 
 
 class Amount(RegexPattern):
@@ -184,6 +82,7 @@ class Amount(RegexPattern):
 
     """
 
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         pattern: ValidPatternType,
@@ -193,13 +92,20 @@ class Amount(RegexPattern):
         greedy: bool = True,
     ) -> None:
         if j is not None:
+            assert not or_more
             amount = f"{i},{j}"
         elif or_more:
             amount = f"{i},"
         else:
             amount = f"{i}"
-        regex = self.get_regex(pattern) + "{" + amount + "}" + ("" if greedy else "?")
-        super().__init__(regex)
+        regex = (
+            self._ensure_precedence(pattern, 2).regex
+            + "{"
+            + amount
+            + "}"
+            + ("" if greedy else "?")
+        )
+        super().__init__(regex, _precedence=1)
 
 
 class Multi(RegexPattern):
@@ -217,8 +123,8 @@ class Multi(RegexPattern):
         suffix = "*" if match_zero else "+"
         if greedy is False:
             suffix += "?"
-        regex = self.get_regex(Group(pattern, capturing=False))
-        super().__init__(regex + suffix)
+        regex = self._ensure_precedence(pattern, 2).regex
+        super().__init__(regex + suffix, _precedence=1)
 
 
 class Optional(RegexPattern):
@@ -227,17 +133,19 @@ class Optional(RegexPattern):
     Functions the same as :code:`Amount(pattern, 0, 1)`.
     """
 
-    def __init__(self, pattern: ValidPatternType, greedy: bool = True) -> None:
-        regex = Group(pattern, capturing=False) + "?" + ("" if greedy else "?")
-        super().__init__(regex)
+    def __init__(self, pattern: ValidPatternType, greedy: bool = True):
+        regex = (
+            self._ensure_precedence(pattern, 2).regex + "?" + ("" if greedy else "?")
+        )
+        super().__init__(regex, _precedence=1)
 
 
 class Extension(RegexPattern):
     """Base class for extension pattern classes."""
 
     def __init__(self, prefix: str, pattern: ValidPatternType):
-        regex = self.get_regex(pattern)
-        super().__init__(f"(?{prefix}{regex})")
+        regex = self.create(pattern).regex
+        super().__init__(f"(?{prefix}{regex})", _precedence=2)
 
 
 class NamedGroup(Extension):
@@ -444,6 +352,7 @@ class Group(Extension):
             RegexPattern.__init__(  # pylint: disable=non-parent-init-called
                 self,
                 f"({pattern})",
+                _precedence=2,
             )
 
 

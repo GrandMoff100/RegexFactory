@@ -23,10 +23,21 @@ from .chars import (
     WHITESPACE,
     WORD,
 )
-from .pattern import ESCAPED_CHARACTERS, RegexPattern, ValidPatternType, escape, join
+from .pattern import (
+    ESCAPED_CHARACTERS,
+    RegexPattern,
+    ValidPatternType,
+    amount,
+    escape,
+    join,
+    multi,
+    optional,
+    or_,
+)
 from .patterns import (
     Amount,
     Comment,
+    Concat,
     Extension,
     Group,
     IfAhead,
@@ -37,12 +48,10 @@ from .patterns import (
     Multi,
     NamedGroup,
     NamedReference,
-    NotSet,
     NumberedReference,
     Optional,
     Or,
-    Range,
-    Set,
 )
+from .sets import EMPTY, NEVER, NotSet, Range, Set
 
 __version__ = "1.0.1"
